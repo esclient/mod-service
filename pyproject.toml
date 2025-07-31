@@ -1,0 +1,32 @@
+[tool.pdm]
+distribution = true
+
+[project]
+name = "modservice"
+version = "0.0.1"
+description = "mod-service for esclient"
+authors = [
+    {name = "esclient"},
+]
+dependencies = [
+    "grpcio-reflection<2.0.0,>=1.72.1",
+    "pydantic<3.0.0,>=2.11.7",
+    "pydantic-setting<3.0.0,>=2.10.1",
+    "psycopg2-binary<3.0.0,>=2.9.10",
+    "grpcio-tools<2.0.0,>=1.73.1",
+    "watchfiles<2.0.0,>=1.1.0",
+]
+requires-python = "<4.0,>=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.scripts]
+run-server = "modservice.server:serve"
+
+[dependency-groups]
+dev = [
+    "grpcio<2.0.0,>=1.72.1",
+    "grpcio-tools<2.0.0,>=1.73.1",
+    "protobuf<7.0.0,>=6.31.1",
+    "pytest<9.0.0,>=8.4.1",
+]
