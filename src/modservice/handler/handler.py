@@ -1,0 +1,1 @@
+from modservice.grpc import mod_pb2_grpc

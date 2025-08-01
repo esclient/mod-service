@@ -1,10 +1,10 @@
 include .env
 
-PROTO_TAG ?= v0.0.8
+PROTO_TAG ?= v0.0.12
 PROTO_NAME := mod.proto
 
 TMP_DIR := .proto
-OUT_DIR := src/
+OUT_DIR := src/modservice
 
 .PHONY: clean fetch-proto get-stubs update
 
@@ -24,7 +24,7 @@ else
 MKDIR	 = mkdir -p
 RM		 = rm -rf $(TMP_DIR)
 DOWN	 = wget
-DOWN_OUT = -0
+DOWN_OUT = -O
 FIX_IMPORTS = \
 	for f in $(OUT_DIR)/*_pb2_grpc.py; do \
 		sed -i 's/^import \(.*_pb2\)/from . import \1/' $$f; \
