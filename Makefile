@@ -32,7 +32,7 @@ FIX_IMPORTS = \
 endif
 
 docker-build:
-	docker build --build-arg PORT=$(PORT) -t comment
+	docker build --build-arg PORT=$(PORT) -t mod .
 
 run: docker-build
 	docker run --rm -it \
@@ -40,7 +40,7 @@ run: docker-build
 		-p $(PORT):$(PORT) \
 		-v $(CURDIR):/app \
 		-e WATCHFILES_FORCE_POLLING=true \
-		comment-dev
+		mod
 
 clean:
 	$(RM)
