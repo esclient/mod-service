@@ -7,7 +7,7 @@ from modservice.grpc import mod_pb2
 from modservice.settings import settings
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_worker=5))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
     mod_pb2_grpc.add_ModServiceServicer_to_server(
         ModHandler(), server
     )

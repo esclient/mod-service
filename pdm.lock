@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:d6d74d13ac22b3a2fd63383b9149b9a0db26f22807751f3d212545a949a5a29f"
+content_hash = "sha256:57f552f374d9674dd29b9375e091948df9f9a2164e9b82feca8682a78f9a0506"
 
 [[metadata.targets]]
 requires_python = "~=3.10"
@@ -66,15 +66,6 @@ dependencies = [
 files = [
     {file = "exceptiongroup-1.3.0-py3-none-any.whl", hash = "sha256:4d111e6e0c13d0644cad6ddaa7ed0261a0b36971f6d23e7ec9b4b9097da78a10"},
     {file = "exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88"},
-]
-
-[[package]]
-name = "grpc"
-version = "1.0.0"
-summary = ""
-groups = ["default"]
-files = [
-    {file = "grpc-1.0.0.tar.gz", hash = "sha256:e1aa035512b1cc8d5ce84685f30eae463dad9123d858f5676b1159a2b80eea86"},
 ]
 
 [[package]]

@@ -4,7 +4,7 @@ PROTO_TAG ?= v0.0.12
 PROTO_NAME := mod.proto
 
 TMP_DIR := .proto
-OUT_DIR := src/modservice
+OUT_DIR := src/modservice/grpc
 
 .PHONY: clean fetch-proto get-stubs update
 
@@ -47,7 +47,7 @@ clean:
 
 fetch-proto:
 	$(MKDIR) "$(TMP_DIR)"
-	$(DOWN) "https://raw.githubusercontent.com/esclient/protos/$(PROTO_TAG)/$(PROTO_NAME)" $(DOWN_OUT) "$(TMP_DIR)/$(PROTO_NAME)""https://raw.githubusercontent.com/esclient/protos/$(PROTO_TAG)/$(PROTO_NAME)" $(DOWN_OUT) "$(TMP_DIR)/$(PROTO_NAME)"
+	$(DOWN) "https://raw.githubusercontent.com/esclient/protos/$(PROTO_TAG)/$(PROTO_NAME)" $(DOWN_OUT) "$(TMP_DIR)/$(PROTO_NAME)"
 
 get-stubs: fetch-proto
 	$(MKDIR) "$(OUT_DIR)"
