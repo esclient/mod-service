@@ -39,7 +39,7 @@ jobs:
         run: pdm install --dev
 
       - name: Upload venv
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pdm-venv
           path: .venv
