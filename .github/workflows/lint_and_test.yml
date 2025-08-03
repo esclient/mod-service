@@ -1,4 +1,4 @@
-name: Lint and test
+name: Lint and Test
 
 on:
   push:
@@ -8,8 +8,10 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  lint:
+  prepare-deps:
     runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-pdm.outputs.cache-hit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,7 +20,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.10.4"
-      
+
       - name: Set up PDM
         uses: pdm-project/setup-pdm@v4
         with:
@@ -37,10 +39,15 @@ jobs:
         if: steps.cache-pdm.outputs.cache-hit != 'true'
         run: pdm install
 
-      - name: Run lint
-        run: pdm run make lint
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependencies
+          path: __pypackages__
 
-  test:
+
+  lint:
+    needs: prepare-deps
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -55,19 +62,39 @@ jobs:
         uses: pdm-project/setup-pdm@v4
         with:
           python-version: "3.10.4"
-          cache: true
-          cache-dependency-path: pdm.lock
 
-      - name: Cache PDM packages
-        id: cache-pdm-test
-        uses: actions/cache@v3
+      - name: Download dependencies
+        uses: actions/download-artifact@v4
         with:
+          name: dependencies
           path: __pypackages__
-          key: ${{ runner.os }}-pdm-${{ hashFiles('**/pdm.lock') }}
 
-      - name: Install dependencies
-        if: steps.cache-pdm-test.outputs.cache-hit != 'true'
-        run: pdm install
+      - name: Run lint
+        run: pdm run make lint
+
+
+  test:
+    needs: prepare-deps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.4"
+
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          python-version: "3.10.4"
+
+      - name: Download dependencies
+        uses: actions/download-artifact@v4
+        with:
+          name: dependencies
+          path: __pypackages__
 
       - name: Run test
         run: pdm run make test
