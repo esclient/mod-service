@@ -1,16 +1,19 @@
-import grpc
 from concurrent import futures
-from grpc_reflection.v1alpha import reflection
-from modservice.handler.handler import ModHandler
-from modservice.grpc import mod_pb2_grpc
-from modservice.grpc import mod_pb2
-from modservice.settings import settings
 
-def serve():
+import grpc
+from grpc_reflection.v1alpha import reflection
+
+from modservice.grpc import mod_pb2, mod_pb2_grpc
+from modservice.handler.handler import ModHandler
+from modservice.settings import Settings
+
+
+def serve() -> None:
+    settings = Settings()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
     mod_pb2_grpc.add_ModServiceServicer_to_server(
         ModHandler(), server
-    )
+    )  # type: ignore[no-untyped-call]
 
     SERVICE_NAMES = (
         mod_pb2.DESCRIPTOR.services_by_name["ModService"].full_name,
@@ -20,8 +23,9 @@ def serve():
 
     server.add_insecure_port(f"{settings.host}:{settings.port}")
     server.start()
-    print(f"gRPC server listening on {settings.host}:{settings.port}")
+    # print(f"gRPC server listening on {settings.host}:{settings.port}")
     server.wait_for_termination()
+
 
 if __name__ == "__main__":
     serve()

@@ -6,7 +6,7 @@ PROTO_NAME := mod.proto
 TMP_DIR := .proto
 OUT_DIR := src/modservice/grpc
 
-.PHONY: clean fetch-proto get-stubs update
+.PHONY: clean fetch-proto get-stubs update format lint test
 
 ifeq ($(OS),Windows_NT)
 MKDIR	 = powershell -Command "New-Item -ItemType Directory -Force -Path"
@@ -51,7 +51,7 @@ fetch-proto:
 
 get-stubs: fetch-proto
 	$(MKDIR) "$(OUT_DIR)"
-	poetry run python -m grpc_tools.protoc \
+	pdm run python -m grpc_tools.protoc \
 		--proto_path="$(TMP_DIR)" \
 		--python_out="$(OUT_DIR)" \
 		--grpc_python_out="$(OUT_DIR)" \
@@ -60,3 +60,18 @@ get-stubs: fetch-proto
 	$(FIX_IMPORTS)
 
 update: get-stubs clean
+
+format:
+	black .
+	isort .
+	ruff check . --fix
+
+lint:
+	black --check .
+	isort . --check --diff
+	flake8 .
+	ruff check .
+	mypy --strict .
+
+test:
+	pytest

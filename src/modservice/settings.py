@@ -1,16 +1,13 @@
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    host: str = Field("0.0.0.0", env = "HOST")
-    port: int = Field(50051, env = "PORT")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
-    database_url: str = Field (..., env="DATABASE_URL")
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
-
-settings = Settings()
+    host: str = Field(validation_alias="HOST")
+    port: int = Field(validation_alias="PORT")
+    database_url: str = Field(validation_alias="DATABASE_URL")
