@@ -125,4 +125,5 @@ dev = [
     "mypy>=1.5.1,<2.0.0",
     "types-protobuf>=6.30.2.20250703",
     "grpc-stubs>=1.53.0.6",
+    "pytest-mock>=3.14.1",
 ]
