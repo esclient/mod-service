@@ -1,4 +1,4 @@
-name: Lint and Test
+name: Lint and test
 
 on:
   push:
@@ -8,10 +8,8 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  prepare-deps:
+  lint:
     runs-on: ubuntu-latest
-    outputs:
-      cache-hit: ${{ steps.cache-venv.outputs.cache-hit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,59 +18,29 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.10.4"
-
+      
       - name: Set up PDM
         uses: pdm-project/setup-pdm@v4
         with:
           python-version: "3.10.4"
+          cache: true
+          cache-dependency-path: pdm.lock
 
-      - name: Cache .venv
-        id: cache-venv
+      - name: Cache PDM packages
+        id: cache-pdm
         uses: actions/cache@v3
         with:
-          path: .venv
+          path: __pypackages__
           key: ${{ runner.os }}-pdm-${{ hashFiles('**/pdm.lock') }}
 
       - name: Install dependencies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
+        if: steps.cache-pdm.outputs.cache-hit != 'true'
         run: pdm install --with dev
-
-      - name: Upload .venv artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: venv-deps
-          path: .venv
-          include-hidden-files: true
-          if-no-files-found: error
-
-  lint:
-    needs: prepare-deps
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10.4"
-
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v4
-        with:
-          python-version: "3.10.4"
-
-      - name: Download .venv artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: venv-deps
-          path: .venv
 
       - name: Run lint
         run: pdm run make lint
 
   test:
-    needs: prepare-deps
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -87,12 +55,19 @@ jobs:
         uses: pdm-project/setup-pdm@v4
         with:
           python-version: "3.10.4"
+          cache: true
+          cache-dependency-path: pdm.lock
 
-      - name: Download .venv artifact
-        uses: actions/download-artifact@v4
+      - name: Cache PDM packages
+        id: cache-pdm-test
+        uses: actions/cache@v3
         with:
-          name: venv-deps
-          path: .venv
+          path: __pypackages__
+          key: ${{ runner.os }}-pdm-${{ hashFiles('**/pdm.lock') }}
+
+      - name: Install dependencies
+        if: steps.cache-pdm-test.outputs.cache-hit != 'true'
+        run: pdm install
 
       - name: Run test
         run: pdm run make test
