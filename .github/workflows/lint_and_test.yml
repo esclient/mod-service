@@ -43,13 +43,15 @@ jobs:
         with:
           name: pdm-venv
           path: .venv
+          include-hidden-files: true
+          if-no-files-found: error
 
   lint:
     needs: deps
     runs-on: ubuntu-latest
     steps:
       - name: Download venv
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: pdm-venv
           path: .venv
@@ -65,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download venv
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: pdm-venv
           path: .venv
