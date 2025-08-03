@@ -1,3 +1,4 @@
+import logging
 from concurrent import futures
 
 import grpc
@@ -10,6 +11,9 @@ from modservice.settings import Settings
 
 def serve() -> None:
     settings = Settings()
+    settings.configure_logging()
+    logger = logging.getLogger(__name__)
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
     mod_pb2_grpc.add_ModServiceServicer_to_server(
         ModHandler(), server
@@ -23,7 +27,7 @@ def serve() -> None:
 
     server.add_insecure_port(f"{settings.host}:{settings.port}")
     server.start()
-    # print(f"gRPC server listening on {settings.host}:{settings.port}")
+    logger.info(f"gRPC server listening on {settings.host}:{settings.port}")
     server.wait_for_termination()
 
 
