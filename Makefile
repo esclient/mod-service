@@ -1,4 +1,4 @@
-include .env
+-include .env
 
 PROTO_TAG ?= v0.0.12
 PROTO_NAME := mod.proto
