@@ -75,7 +75,7 @@ ignore = [
 [tool.mypy]
 python_version = "3.10"
 strict = true
-exclude = 'src/modservice/grpc/.*\.py$'
+exclude = 'src(?:[/\\])modservice(?:[/\\])grpc'
 warn_unused_configs = true
 warn_return_any = true
 disallow_untyped_defs = true
