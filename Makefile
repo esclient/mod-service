@@ -1,6 +1,6 @@
 -include .env
 
-PROTO_TAG ?= v0.0.12
+PROTO_TAG ?= v0.0.16
 PROTO_NAME := mod.proto
 
 TMP_DIR := .proto
@@ -11,14 +11,14 @@ OUT_DIR := src/modservice/grpc
 ifeq ($(OS),Windows_NT)
 MKDIR	 = powershell -Command "New-Item -ItemType Directory -Force -Path"
 RM		 = powershell -NoProfile -Command "Remove-Item -Path '$(TMP_DIR)' -Recurse -Force"
-DOWN	 = powershell -Command "Invoke-WebRequest -Uri"
+DOWN	 = powershell -Command "Invoke-WebRequest -Uri"source .venv/Scripts/activate
 DOWN_OUT = -OutFile
 FIX_IMPORTS = powershell -Command "& { \
-	Get-ChildItem -Path '$(OUT_DIR)' -Filter '*_pb2_grpc.py' | \
-	ForEach-Object { \
-	(Get-Content $$_.FullName) -replace '^import (.*_pb2)', 'from . import $$1' | \
-	Set-Content -Path $$_.FullName -Encoding UTF8 \
-	} \
+  Get-ChildItem -Path '$(OUT_DIR)' -Filter '*_pb2_grpc.py' | \
+  ForEach-Object { \
+    (Get-Content \$$_.FullName) -replace '^import (.*_pb2)', 'from . import \$$1' | \
+    Set-Content -Path \$$_.FullName -Encoding UTF8 \
+  } \
 }"
 else
 MKDIR	 = mkdir -p
