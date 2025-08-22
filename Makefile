@@ -1,6 +1,6 @@
 -include .env
 
-PROTO_TAG ?= v0.0.12
+PROTO_TAG ?= v0.0.16
 PROTO_NAME := mod.proto
 
 TMP_DIR := .proto
@@ -16,8 +16,8 @@ DOWN_OUT = -OutFile
 FIX_IMPORTS = powershell -Command "& { \
 	Get-ChildItem -Path '$(OUT_DIR)' -Filter '*_pb2_grpc.py' | \
 	ForEach-Object { \
-	(Get-Content $$_.FullName) -replace '^import (.*_pb2)', 'from . import $$1' | \
-	Set-Content -Path $$_.FullName -Encoding UTF8 \
+		(Get-Content \$$_.FullName) -replace '^import (.*_pb2)', 'from . import \$$1' | \
+		Set-Content -Path \$$_.FullName -Encoding UTF8 \
 	} \
 }"
 else

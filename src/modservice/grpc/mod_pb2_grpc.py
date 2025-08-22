@@ -34,17 +34,17 @@ class ModServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.TestMod = channel.unary_unary(
-                '/mod.ModService/TestMod',
-                request_serializer=mod__pb2.TestModRequest.SerializeToString,
-                response_deserializer=mod__pb2.TestModResponse.FromString,
+        self.CreateMod = channel.unary_unary(
+                '/mod.ModService/CreateMod',
+                request_serializer=mod__pb2.CreateModRequest.SerializeToString,
+                response_deserializer=mod__pb2.CreateModResponse.FromString,
                 _registered_method=True)
 
 
 class ModServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def TestMod(self, request, context):
+    def CreateMod(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -53,10 +53,10 @@ class ModServiceServicer(object):
 
 def add_ModServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'TestMod': grpc.unary_unary_rpc_method_handler(
-                    servicer.TestMod,
-                    request_deserializer=mod__pb2.TestModRequest.FromString,
-                    response_serializer=mod__pb2.TestModResponse.SerializeToString,
+            'CreateMod': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateMod,
+                    request_deserializer=mod__pb2.CreateModRequest.FromString,
+                    response_serializer=mod__pb2.CreateModResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -70,7 +70,7 @@ class ModService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def TestMod(request,
+    def CreateMod(request,
             target,
             options=(),
             channel_credentials=None,
@@ -83,9 +83,9 @@ class ModService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/mod.ModService/TestMod',
-            mod__pb2.TestModRequest.SerializeToString,
-            mod__pb2.TestModResponse.FromString,
+            '/mod.ModService/CreateMod',
+            mod__pb2.CreateModRequest.SerializeToString,
+            mod__pb2.CreateModResponse.FromString,
             options,
             channel_credentials,
             insecure,
