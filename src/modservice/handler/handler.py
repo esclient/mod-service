@@ -1,6 +1,5 @@
 import grpc
 from modservice.grpc import mod_pb2_grpc, mod_pb2
-from modservice.handler.create_mod import CreateMod
 from modservice.service.service import ModService
 from modservice.handler.create_mod import CreateMod as _create_mod
 
