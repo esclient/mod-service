@@ -2,7 +2,11 @@ from psycopg2.pool import ThreadedConnectionPool
 
 
 def create_mod(
-    db_pool: ThreadedConnectionPool, mod_title: str, author_id: int, filename: str, description: str
+    db_pool: ThreadedConnectionPool,
+    mod_title: str,
+    author_id: int,
+    filename: str,
+    description: str,
 ) -> int:
     conn = db_pool.getconn()
     try:
