@@ -8,7 +8,7 @@ class ModService:
 
     def create_mod(
         self, mod_title: str, author_id: int, filename: str, description: str
-    ) -> int:
+    ) -> tuple[int, str, str]:
         return _create_mod(
             self._repo, mod_title, author_id, filename, description
         )

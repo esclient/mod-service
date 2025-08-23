@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:b0519a4331d83ccb34bf715bb2f3bdfdde766c6accf64ded17761677744d57cf"
+content_hash = "sha256:bfb0dadf63c7ca089e1c75711a95d7858db56018525135bf5773d6da1f314edd"
 
 [[metadata.targets]]
 requires_python = "~=3.10"
@@ -797,6 +797,17 @@ groups = ["dev"]
 files = [
     {file = "types_protobuf-6.30.2.20250703-py3-none-any.whl", hash = "sha256:fa5aff9036e9ef432d703abbdd801b436a249b6802e4df5ef74513e272434e57"},
     {file = "types_protobuf-6.30.2.20250703.tar.gz", hash = "sha256:609a974754bbb71fa178fc641f51050395e8e1849f49d0420a6281ed8d1ddf46"},
+]
+
+[[package]]
+name = "types-psycopg2"
+version = "2.9.21.20250809"
+requires_python = ">=3.9"
+summary = "Typing stubs for psycopg2"
+groups = ["dev"]
+files = [
+    {file = "types_psycopg2-2.9.21.20250809-py3-none-any.whl", hash = "sha256:59b7b0ed56dcae9efae62b8373497274fc1a0484bdc5135cdacbe5a8f44e1d7b"},
+    {file = "types_psycopg2-2.9.21.20250809.tar.gz", hash = "sha256:b7c2cbdcf7c0bd16240f59ba694347329b0463e43398de69784ea4dee45f3c6d"},
 ]
 
 [[package]]

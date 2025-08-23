@@ -7,5 +7,5 @@ def create_mod(
     author_id: int,
     filename: str,
     description: str,
-) -> int:
+) -> tuple[int, str, str]:
     return repo.create_mod(mod_title, author_id, filename, description)
