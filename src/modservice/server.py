@@ -18,21 +18,16 @@ def serve() -> None:
     logger = logging.getLogger(__name__)
 
     db_pool = ThreadedConnectionPool(
-        minconn=1,
-        maxconn=10,
-        host=settings.db_host,
-        port=settings.db_port,
-        database=settings.db_name,
-        user=settings.db_user,
-        password=settings.db_password,
+        minconn=1, maxconn=10, dsn=settings.database_url
     )
 
     repo = ModRepository(db_pool)
     service = ModService(repo)
+    handler = ModHandler(service)
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
     mod_pb2_grpc.add_ModServiceServicer_to_server(
-        ModHandler(service), server
+        handler, server
     )  # type: ignore[no-untyped-call]
 
     SERVICE_NAMES = (
