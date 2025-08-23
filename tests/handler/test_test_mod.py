@@ -12,6 +12,15 @@ def test_testmod_returns_success_true(mocker: MockerFixture) -> None:
     response = TestMod(request, ctx)
 
     assert isinstance(response, CreateModResponse)
-    assert response.success is True
+    
+    assert hasattr(response, 'mod_id')
+    assert hasattr(response, 'upload_url')
+    assert hasattr(response, 's3_key')
 
-    assert response == CreateModResponse(success=True)
+    assert isinstance(response.mod_id, int)
+    assert isinstance(response.upload_url, str)
+    assert isinstance(response.s3_key, str)
+
+    assert response.mod_id > 0  
+    assert response.upload_url != ""  
+    assert response.s3_key != ""
