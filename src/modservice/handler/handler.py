@@ -9,7 +9,7 @@ class ModHandler(mod_pb2_grpc.ModServiceServicer):
     def __init__(self, service: ModService):
         self._service = service
 
-    def CreateComment(
+    def CreateMod(
         self,
         request: mod_pb2.CreateModRequest,
         context: grpc.ServicerContext,
