@@ -37,7 +37,10 @@ class S3Client:
             )
 
     def generate_presigned_put_url(
-        self, s3_key: str, expiration: int = 3600, content_type: str | None = None
+        self,
+        s3_key: str,
+        expiration: int = 3600,
+        content_type: str | None = None,
     ) -> str:
         """
         Генерирует presigned URL для загрузки файла в S3
@@ -66,4 +69,6 @@ class S3Client:
             )
             return presigned_url
         except Exception as e:
-            raise Exception(f"Ошибка при генерации presigned URL: {e!s}")
+            raise Exception(
+                f"Ошибка при генерации presigned URL: {e!s}"
+            ) from e
