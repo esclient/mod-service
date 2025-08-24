@@ -8,12 +8,14 @@ class S3Client:
                 access_key: str,
                 secret_key: str,
                 endpoint_url: str,
-                bucket_name: str
+                bucket_name: str,
+                verify: bool,
     ):
         self.config = {
             "aws_access_key_id": access_key,
             "aws_secret_access_key": secret_key,
             "endpoint_url": endpoint_url,
+            "verify": verify,
         }
 
         self.bucket_name = bucket_name
@@ -39,14 +41,12 @@ class S3Client:
 
 async def main():
     settings = Settings()
-    print(settings.s3_access_key)
-    print(settings.s3_secret_access_key)
-    print(settings.s3_api_endpoint)
     s3_client = S3Client(
         access_key=settings.s3_access_key,
         secret_key=settings.s3_secret_access_key,
         endpoint_url=settings.s3_api_endpoint,
         bucket_name="mods",
+        verify=False,
     )
 
     await s3_client.upload_file("test.png")
