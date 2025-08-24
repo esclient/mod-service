@@ -43,13 +43,11 @@ async def main():
     settings = Settings()
     s3_client = S3Client(
         access_key=settings.s3_access_key,
-        secret_key=settings.s3_secret_access_key,
+        secret_key=settings.s3_secret_key,
         endpoint_url=settings.s3_api_endpoint,
-        bucket_name="mods",
-        verify=False,
+        bucket_name=settings.s3_bucket_name,
+        verify=settings.s3_ssl_verify,
     )
-
-    await s3_client.upload_file("test.png")
 
 if __name__ == "__main__":
     asyncio.run(main())
