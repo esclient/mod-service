@@ -8,9 +8,9 @@ from psycopg2.pool import ThreadedConnectionPool
 from modservice.grpc import mod_pb2, mod_pb2_grpc
 from modservice.handler.handler import ModHandler
 from modservice.repository.repository import ModRepository
-from modservice.service.service import ModService
-from modservice.service.s3_service import S3Service
 from modservice.s3_client import S3Client
+from modservice.service.s3_service import S3Service
+from modservice.service.service import ModService
 from modservice.settings import Settings
 
 

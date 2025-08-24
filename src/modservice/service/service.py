@@ -1,5 +1,4 @@
-import os
-from datetime import datetime
+
 from modservice.repository.repository import ModRepository
 from modservice.service.create_mod import create_mod as _create_mod
 from modservice.service.s3_service import S3Service
@@ -16,26 +15,23 @@ class ModService:
         return _create_mod(
             self._repo, mod_title, author_id, filename, description
         )
-    
+
     def generate_s3_key(
-        self,
-        author_id: int,
-        filename: str,
-        mod_title: str = None
+        self, author_id: int, filename: str, mod_title: str | None = None
     ) -> str:
         return self._s3_service.generate_s3_key(author_id, filename, mod_title)
-    
+
     def generate_upload_url(
         self,
         author_id: int,
         filename: str,
-        mod_title: str = None,
+        mod_title: str | None = None,
         expiration: int = 3600,
-        content_type: str = None
+        content_type: str | None = None,
     ) -> tuple[str, str]:
         return self._s3_service.generate_upload_url(
             author_id, filename, mod_title, expiration, content_type
         )
-    
+
     def get_file_info_from_s3_key(self, s3_key: str) -> dict:
         return self._s3_service.get_file_info_from_s3_key(s3_key)
