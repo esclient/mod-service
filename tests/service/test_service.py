@@ -82,7 +82,7 @@ class TestModService:
             s3_key
         )
 
-    def test_create_mod_delegates_to_repository(self, mod_service, mock_repo):
+    def test_create_mod_delegates_to_repository(self, mod_service):
         """Тест, что create_mod делегирует вызов в репозиторий"""
         mod_title = "Test Mod"
         author_id = 123
@@ -95,7 +95,7 @@ class TestModService:
         with pytest.MonkeyPatch().context() as m:
             m.setattr(
                 "modservice.service.service._create_mod",
-                lambda *args: expected_result,
+                expected_result,
             )
 
             result = mod_service.create_mod(

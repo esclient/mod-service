@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     s3_bucket_name: str = Field(validation_alias="S3_BUCKET_NAME")
     s3_ssl_verify: bool = Field(
         validation_alias="S3_SSL_VERIFY"
-    )  # TODO: добавить поддержку сертификатов, иначе без защищённого подключения упиздят все моды
+    )  # TODO: добавить поддержку сертификатов
+    # иначе без защищённого подключения упиздят все моды
 
     def configure_logging(self) -> None:
         logging.basicConfig(

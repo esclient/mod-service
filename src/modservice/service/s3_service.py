@@ -22,7 +22,8 @@ class S3Service:
             mod_title: Название мода (опционально)
 
         Returns:
-            Уникальный S3-ключ в формате: mods/{author_id}/{timestamp}_{filename}
+            Уникальный S3-ключ
+            в формате: mods/{author_id}/{timestamp}_{filename}
         """
         file_extension = os.path.splitext(filename)[1]
 
@@ -118,7 +119,7 @@ class S3Service:
                 if len(remaining_parts) == 1:
                     timestamp_filename = remaining_parts[
                         0
-                    ]  # timestamp имеет формат YYYYMMDD_HHMMSS (15 символов + underscore)
+                    ]  # формат timestamp - YYYYMMDD_HHMMSS
 
                     if (
                         len(timestamp_filename) > 16
