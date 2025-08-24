@@ -103,6 +103,7 @@ dependencies = [
     "psycopg2-binary<3.0.0,>=2.9.10",
     "grpcio-tools<2.0.0,>=1.73.1",
     "watchfiles<2.0.0,>=1.1.0",
+    "aiobotocore>=2.24.1",
 ]
 requires-python = "<4.0,>=3.10"
 readme = "README.md"
