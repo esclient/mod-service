@@ -15,9 +15,9 @@ def CreateMod(
         filename=request.filename,
         mod_title=request.mod_title,
         expiration=3600,  # 1 час на загрузку
-        content_type=None  # Автоматическое определение
+        content_type=None,  # Автоматическое определение
     )
-    
+
     # Создаем мод в базе данных
     mod_id, _, _ = service.create_mod(
         request.mod_title,
@@ -25,9 +25,7 @@ def CreateMod(
         request.filename,
         request.description,
     )
-    
+
     return mod_pb2.CreateModResponse(
-        mod_id=mod_id, 
-        upload_url=upload_url, 
-        s3_key=s3_key
+        mod_id=mod_id, upload_url=upload_url, s3_key=s3_key
     )
