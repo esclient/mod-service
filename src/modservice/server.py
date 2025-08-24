@@ -9,6 +9,8 @@ from modservice.grpc import mod_pb2, mod_pb2_grpc
 from modservice.handler.handler import ModHandler
 from modservice.repository.repository import ModRepository
 from modservice.service.service import ModService
+from modservice.service.s3_service import S3Service
+from modservice.s3_client import S3Client
 from modservice.settings import Settings
 
 
@@ -21,8 +23,17 @@ def serve() -> None:
         minconn=1, maxconn=10, dsn=settings.database_url
     )
 
+    s3_client = S3Client(
+        access_key=settings.s3_access_key,
+        secret_key=settings.s3_secret_key,
+        endpoint_url=settings.s3_api_endpoint,
+        bucket_name=settings.s3_bucket_name,
+        verify=settings.s3_ssl_verify,
+    )
+    s3_service = S3Service(s3_client)
+
     repo = ModRepository(db_pool)
-    service = ModService(repo)
+    service = ModService(repo, s3_service)
     handler = ModHandler(service)
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
@@ -39,6 +50,8 @@ def serve() -> None:
     server.add_insecure_port(f"{settings.host}:{settings.port}")
     server.start()
     logger.info(f"gRPC server listening on {settings.host}:{settings.port}")
+    logger.info(f"S3 bucket: {settings.s3_bucket_name}")
+    logger.info(f"S3 endpoint: {settings.s3_api_endpoint}")
     server.wait_for_termination()
 
 
