@@ -3,9 +3,12 @@ from concurrent import futures
 
 import grpc
 from grpc_reflection.v1alpha import reflection
+from psycopg2.pool import ThreadedConnectionPool
 
 from modservice.grpc import mod_pb2, mod_pb2_grpc
 from modservice.handler.handler import ModHandler
+from modservice.repository.repository import ModRepository
+from modservice.service.service import ModService
 from modservice.settings import Settings
 
 
@@ -14,9 +17,17 @@ def serve() -> None:
     settings.configure_logging()
     logger = logging.getLogger(__name__)
 
+    db_pool = ThreadedConnectionPool(
+        minconn=1, maxconn=10, dsn=settings.database_url
+    )
+
+    repo = ModRepository(db_pool)
+    service = ModService(repo)
+    handler = ModHandler(service)
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
     mod_pb2_grpc.add_ModServiceServicer_to_server(
-        ModHandler(), server
+        handler, server
     )  # type: ignore[no-untyped-call]
 
     SERVICE_NAMES = (
