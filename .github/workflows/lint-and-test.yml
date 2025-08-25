@@ -9,6 +9,6 @@ on:
 
 jobs:
   lint-and-test:
-    uses: esclient/esclient-workflows/.github/workflows/lint-and-test-python.yml@main
+    uses: esclient/tools/.github/workflows/lint-and-test-python.yml@main
     with:
       python-version: '3.10.4'
