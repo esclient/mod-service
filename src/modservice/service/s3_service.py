@@ -5,26 +5,12 @@ from modservice.s3_client import S3Client
 
 
 class S3Service:
-    """Сервис для работы с S3"""
-
     def __init__(self, s3_client: S3Client):
         self._s3_client = s3_client
 
     def generate_s3_key(
         self, author_id: int, filename: str, mod_title: str | None = None
     ) -> str:
-        """
-        Генерирует уникальный S3-ключ для файла мода
-
-        Args:
-            author_id: ID автора мода
-            filename: Имя файла
-            mod_title: Название мода (опционально)
-
-        Returns:
-            Уникальный S3-ключ
-            в формате: mods/{author_id}/{timestamp}_{filename}
-        """
         file_extension = os.path.splitext(filename)[1]
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -63,19 +49,6 @@ class S3Service:
         expiration: int = 3600,
         content_type: str | None = None,
     ) -> tuple[str, str]:
-        """
-        Генерирует S3-ключ и presigned URL для загрузки файла
-
-        Args:
-            author_id: ID автора мода
-            filename: Имя файла
-            mod_title: Название мода (опционально)
-            expiration: Время жизни URL в секундах (по умолчанию 1 час)
-            content_type: Тип содержимого файла (опционально)
-
-        Returns:
-            Кортеж (s3_key, presigned_url)
-        """
         s3_key = self.generate_s3_key(author_id, filename, mod_title)
 
         # Определяем content_type на основе расширения файла, если не указан
@@ -100,15 +73,6 @@ class S3Service:
         return s3_key, presigned_url
 
     def get_file_info_from_s3_key(self, s3_key: str) -> dict:
-        """
-        Извлекает информацию о файле из S3-ключа
-
-        Args:
-            s3_key: S3-ключ в формате mods/{author_id}/{timestamp}_{filename}
-
-        Returns:
-            Словарь с информацией о файле
-        """
         try:
             parts = s3_key.split("/")
             if len(parts) >= 3 and parts[0] == "mods":

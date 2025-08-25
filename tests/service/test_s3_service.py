@@ -18,7 +18,6 @@ class TestS3Service:
         return S3Service(mock_s3_client)
 
     def test_generate_s3_key_basic(self, s3_service):
-        """Тест генерации S3-ключа без названия мода"""
         author_id = 123
         filename = "test_mod.zip"
 
@@ -29,7 +28,6 @@ class TestS3Service:
         assert "_" in s3_key  # Должен содержать timestamp
 
     def test_generate_s3_key_with_mod_title(self, s3_service):
-        """Тест генерации S3-ключа с названием мода"""
         author_id = 456
         filename = "awesome_mod.rar"
         mod_title = "Awesome Mod v2.0"
@@ -41,7 +39,6 @@ class TestS3Service:
         assert "_" in s3_key
 
     def test_generate_s3_key_special_characters(self, s3_service):
-        """Тест генерации S3-ключа с специальными символами в названии"""
         author_id = 789
         filename = "test@mod#.zip"
         mod_title = "Test@Mod# v1.0!"
@@ -55,7 +52,6 @@ class TestS3Service:
         assert "!" not in s3_key
 
     def test_generate_s3_key_unique(self, s3_service):
-        """Тест уникальности генерируемых S3-ключей"""
         author_id = 123
         filename = "test.zip"
 
@@ -69,7 +65,6 @@ class TestS3Service:
         assert key2 != key3  # Разные комбинации
 
     def test_generate_upload_url(self, s3_service, mock_s3_client):
-        """Тест генерации presigned URL для загрузки"""
         author_id = 123
         filename = "test_mod.zip"
         mod_title = "Test Mod"
@@ -103,7 +98,6 @@ class TestS3Service:
     def test_generate_upload_url_auto_content_type(
         self, s3_service, mock_s3_client
     ):
-        """Тест автоматического определения content_type"""
         author_id = 123
         filename = "archive.7z"
 
@@ -127,7 +121,6 @@ class TestS3Service:
         )
 
     def test_get_file_info_from_s3_key_valid(self, s3_service):
-        """Тест извлечения информации из валидного S3-ключа"""
         s3_key = "mods/123/20231201_120000_Test_Mod.zip"
 
         info = s3_service.get_file_info_from_s3_key(s3_key)
@@ -147,7 +140,6 @@ class TestS3Service:
         assert info["full_s3_key"] == s3_key
 
     def test_get_file_info_from_s3_key_malformed(self, s3_service):
-        """Тест обработки некорректно сформированного S3-ключа"""
         s3_key = "mods/abc/not_a_number/file.zip"  # author_id не число
 
         info = s3_service.get_file_info_from_s3_key(s3_key)

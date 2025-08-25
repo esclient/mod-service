@@ -21,7 +21,6 @@ class TestModService:
         return ModService(mock_repo, mock_s3_service)
 
     def test_generate_s3_key(self, mod_service, mock_s3_service):
-        """Тест генерации S3-ключа через ModService"""
         author_id = 123
         filename = "test_mod.zip"
         mod_title = "Test Mod"
@@ -37,7 +36,6 @@ class TestModService:
         )
 
     def test_generate_upload_url(self, mod_service, mock_s3_service):
-        """Тест генерации presigned URL через ModService"""
         author_id = 456
         filename = "awesome_mod.rar"
         mod_title = "Awesome Mod"
@@ -64,7 +62,6 @@ class TestModService:
         )
 
     def test_get_file_info_from_s3_key(self, mod_service, mock_s3_service):
-        """Тест извлечения информации из S3-ключа через ModService"""
         s3_key = "mods/789/20231201_140000_Test_File.zip"
         expected_info = {
             "author_id": 789,
@@ -83,7 +80,6 @@ class TestModService:
         )
 
     def test_create_mod_delegates_to_repository(self, mod_service):
-        """Тест, что create_mod делегирует вызов в репозиторий"""
         mod_title = "Test Mod"
         author_id = 123
         filename = "test.zip"

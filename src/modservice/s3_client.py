@@ -42,17 +42,6 @@ class S3Client:
         expiration: int = 3600,
         content_type: str | None = None,
     ) -> str:
-        """
-        Генерирует presigned URL для загрузки файла в S3
-
-        Args:
-            s3_key: Ключ объекта в S3
-            expiration: Время жизни URL в секундах (по умолчанию 1 час)
-            content_type: Тип содержимого файла (опционально)
-
-        Returns:
-            Presigned URL для загрузки
-        """
         client = self.get_client()
         params = {
             "Bucket": self.bucket_name,
