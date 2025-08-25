@@ -1,4 +1,6 @@
-from botocore.session import get_session
+from typing import Any
+
+from botocore.session import get_session  # type: ignore[import-untyped]
 
 
 class S3Client:
@@ -9,8 +11,8 @@ class S3Client:
         endpoint_url: str,
         bucket_name: str,
         verify: bool,
-    ):
-        self.config = {
+    ) -> None:
+        self.config: dict[str, Any] = {
             "aws_access_key_id": access_key,
             "aws_secret_access_key": secret_key,
             "endpoint_url": endpoint_url,
@@ -20,13 +22,13 @@ class S3Client:
         self.bucket_name = bucket_name
         self.session = get_session()
 
-    def get_client(self):
+    def get_client(self) -> Any:
         return self.session.create_client("s3", **self.config)
 
     def upload_file(
         self,
         file_path: str,
-    ):
+    ) -> None:
         object_name = file_path.split("/")[-1]
         client = self.get_client()
         with open(file_path, "rb") as file:
@@ -43,7 +45,7 @@ class S3Client:
         content_type: str | None = None,
     ) -> str:
         client = self.get_client()
-        params = {
+        params: dict[str, Any] = {
             "Bucket": self.bucket_name,
             "Key": s3_key,
             "Expires": expiration,
@@ -53,7 +55,7 @@ class S3Client:
             params["ContentType"] = content_type
 
         try:
-            presigned_url = client.generate_presigned_url(
+            presigned_url: str = client.generate_presigned_url(
                 "put_object", Params=params
             )
             return presigned_url

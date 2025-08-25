@@ -1,10 +1,12 @@
+from typing import Any
+
 from modservice.repository.repository import ModRepository
 from modservice.service.create_mod import create_mod as _create_mod
 from modservice.service.s3_service import S3Service
 
 
 class ModService:
-    def __init__(self, repo: ModRepository, s3_service: S3Service):
+    def __init__(self, repo: ModRepository, s3_service: S3Service) -> None:
         self._repo = repo
         self._s3_service = s3_service
 
@@ -32,5 +34,5 @@ class ModService:
             author_id, filename, mod_title, expiration, content_type
         )
 
-    def get_file_info_from_s3_key(self, s3_key: str) -> dict:
+    def get_file_info_from_s3_key(self, s3_key: str) -> dict[str, Any]:
         return self._s3_service.get_file_info_from_s3_key(s3_key)

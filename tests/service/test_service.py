@@ -1,3 +1,4 @@
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,18 +10,22 @@ from modservice.service.service import ModService
 
 class TestModService:
     @pytest.fixture
-    def mock_repo(self):
+    def mock_repo(self) -> MagicMock:
         return MagicMock(spec=ModRepository)
 
     @pytest.fixture
-    def mock_s3_service(self):
+    def mock_s3_service(self) -> MagicMock:
         return MagicMock(spec=S3Service)
 
     @pytest.fixture
-    def mod_service(self, mock_repo, mock_s3_service):
+    def mod_service(
+        self, mock_repo: MagicMock, mock_s3_service: MagicMock
+    ) -> ModService:
         return ModService(mock_repo, mock_s3_service)
 
-    def test_generate_s3_key(self, mod_service, mock_s3_service):
+    def test_generate_s3_key(
+        self, mod_service: ModService, mock_s3_service: MagicMock
+    ) -> None:
         author_id = 123
         filename = "test_mod.zip"
         mod_title = "Test Mod"
@@ -35,7 +40,9 @@ class TestModService:
             author_id, filename, mod_title
         )
 
-    def test_generate_upload_url(self, mod_service, mock_s3_service):
+    def test_generate_upload_url(
+        self, mod_service: ModService, mock_s3_service: MagicMock
+    ) -> None:
         author_id = 456
         filename = "awesome_mod.rar"
         mod_title = "Awesome Mod"
@@ -61,9 +68,11 @@ class TestModService:
             author_id, filename, mod_title, expiration, content_type
         )
 
-    def test_get_file_info_from_s3_key(self, mod_service, mock_s3_service):
+    def test_get_file_info_from_s3_key(
+        self, mod_service: ModService, mock_s3_service: MagicMock
+    ) -> None:
         s3_key = "mods/789/20231201_140000_Test_File.zip"
-        expected_info = {
+        expected_info: dict[str, Any] = {
             "author_id": 789,
             "timestamp": "20231201_140000",
             "filename": "Test_File.zip",
@@ -79,19 +88,26 @@ class TestModService:
             s3_key
         )
 
-    def test_create_mod_delegates_to_repository(self, mod_service):
+    def test_create_mod_delegates_to_repository(
+        self, mod_service: ModService
+    ) -> None:
         mod_title = "Test Mod"
         author_id = 123
         filename = "test.zip"
         description = "Test description"
 
-        expected_result = (1, "test_s3_key", "test_upload_url")
+        expected_result: tuple[int, str, str] = (
+            1,
+            "test_s3_key",
+            "test_upload_url",
+        )
 
         # Мокаем функцию create_mod из модуля create_mod
         with pytest.MonkeyPatch().context() as m:
+            mock_create_mod = MagicMock(return_value=expected_result)
             m.setattr(
                 "modservice.service.service._create_mod",
-                expected_result,
+                mock_create_mod,
             )
 
             result = mod_service.create_mod(

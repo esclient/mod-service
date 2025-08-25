@@ -7,7 +7,7 @@ from modservice.service.service import ModService
 def CreateMod(
     service: ModService,
     request: mod_pb2.CreateModRequest,
-    _: grpc.ServicerContext,
+    context: grpc.ServicerContext,  # noqa: ARG001
 ) -> mod_pb2.CreateModResponse:
     # Генерируем S3-ключ и presigned URL для загрузки
     s3_key, upload_url = service.generate_upload_url(
@@ -19,7 +19,7 @@ def CreateMod(
     )
 
     # Создаем мод в базе данных
-    mod_id, _, _ = service.create_mod(
+    mod_id, _s3_key_unused, _upload_url_unused = service.create_mod(
         request.mod_title,
         request.author_id,
         request.filename,

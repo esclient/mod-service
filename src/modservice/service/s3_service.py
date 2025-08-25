@@ -1,11 +1,12 @@
 import os
 from datetime import datetime
+from typing import Any
 
 from modservice.s3_client import S3Client
 
 
 class S3Service:
-    def __init__(self, s3_client: S3Client):
+    def __init__(self, s3_client: S3Client) -> None:
         self._s3_client = s3_client
 
     def generate_s3_key(
@@ -72,7 +73,7 @@ class S3Service:
 
         return s3_key, presigned_url
 
-    def get_file_info_from_s3_key(self, s3_key: str) -> dict:
+    def get_file_info_from_s3_key(self, s3_key: str) -> dict[str, Any]:
         try:
             parts = s3_key.split("/")
             if len(parts) >= 3 and parts[0] == "mods":
