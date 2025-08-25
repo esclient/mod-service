@@ -24,17 +24,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tmod.proto\x12\x03mod\" \n\x0eTestModRequest\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\"\"\n\x0fTestModResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\x42\n\nModService\x12\x34\n\x07TestMod\x12\x13.mod.TestModRequest\x1a\x14.mod.TestModResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tmod.proto\x12\x03mod\"_\n\x10\x43reateModRequest\x12\x11\n\tmod_title\x18\x01 \x01(\t\x12\x11\n\tauthor_id\x18\x02 \x01(\x03\x12\x10\n\x08\x66ilename\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"G\n\x11\x43reateModResponse\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\x12\x12\n\nupload_url\x18\x02 \x01(\t\x12\x0e\n\x06s3_key\x18\x03 \x01(\t2H\n\nModService\x12:\n\tCreateMod\x12\x15.mod.CreateModRequest\x1a\x16.mod.CreateModResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'mod_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_TESTMODREQUEST']._serialized_start=18
-  _globals['_TESTMODREQUEST']._serialized_end=50
-  _globals['_TESTMODRESPONSE']._serialized_start=52
-  _globals['_TESTMODRESPONSE']._serialized_end=86
-  _globals['_MODSERVICE']._serialized_start=88
-  _globals['_MODSERVICE']._serialized_end=154
+  _globals['_CREATEMODREQUEST']._serialized_start=18
+  _globals['_CREATEMODREQUEST']._serialized_end=113
+  _globals['_CREATEMODRESPONSE']._serialized_start=115
+  _globals['_CREATEMODRESPONSE']._serialized_end=186
+  _globals['_MODSERVICE']._serialized_start=188
+  _globals['_MODSERVICE']._serialized_end=260
 # @@protoc_insertion_point(module_scope)
