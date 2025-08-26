@@ -29,7 +29,7 @@ ensure_newline_before_comments = true
 skip = [".venv", "src/modservice/grpc"]
 
 [tool.flake8]
-max-line-length = 79
+max-line-length = 120
 extend-ignore = ["E203", "W503"]
 per-file-ignores = [
     "__init__.py:F401",
@@ -44,7 +44,7 @@ exclude = [
 ]
 
 [tool.ruff]
-line-length = 79
+line-length = 120
 target-version = "py310"
 preview = true
 exclude = [".venv", "build", "dist", "src/modservice/grpc"]
@@ -66,7 +66,8 @@ ignore = [
     "B008",
     "SIM105",
     "RUF001",
-    "RUF100"
+    "RUF100",
+    "RUF003"
 ]
 
 [tool.ruff.lint.per-file-ignores]
