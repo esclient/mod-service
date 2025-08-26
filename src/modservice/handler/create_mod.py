@@ -9,8 +9,17 @@ def CreateMod(
     request: mod_pb2.CreateModRequest,
     context: grpc.ServicerContext,  # noqa: ARG001
 ) -> mod_pb2.CreateModResponse:
-    # Создаем мод
-    mod_id, s3_key, upload_url = service.create_mod(
+    # Генерируем S3-ключ и presigned URL для загрузки
+    s3_key, upload_url = service.generate_upload_url(
+        author_id=request.author_id,
+        filename=request.filename,
+        mod_title=request.mod_title,
+        expiration=3600,  # 1 час на загрузку
+        content_type=None,  # Автоматическое определение
+    )
+
+    # Создаем мод в базе данных
+    mod_id, _s3_key_unused, _upload_url_unused = service.create_mod(
         request.mod_title,
         request.author_id,
         request.filename,

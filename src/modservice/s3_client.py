@@ -61,5 +61,5 @@ class S3Client:
             return presigned_url
         except Exception as e:
             raise Exception(
-                f"Ошибка при генерации presigned URL для загрузки: {e!s}"
+                f"Ошибка при генерации presigned URL: {e!s}"
             ) from e
