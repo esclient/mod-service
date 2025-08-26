@@ -1,7 +1,6 @@
 from typing import Any
-
 from botocore.session import get_session  # type: ignore[import-untyped]
-
+from botocore.config import Config  # <-- добавить
 
 class S3Client:
     def __init__(
@@ -17,18 +16,20 @@ class S3Client:
             "aws_secret_access_key": secret_key,
             "endpoint_url": endpoint_url,
             "verify": verify,
+            "region_name": "us-east-1",  # <-- добавить
+            "config": Config(            # <-- добавить
+                signature_version="s3v4",
+                s3={"addressing_style": "path"},
+            ),
         }
 
         self.bucket_name = bucket_name
         self.session = get_session()
 
     def get_client(self) -> Any:
-        return self.session.create_client("s3", **self.config)
+        return self.session.create_client("s3", **self.config)  # ок  :contentReference[oaicite:1]{index=1}
 
-    def upload_file(
-        self,
-        file_path: str,
-    ) -> None:
+    def upload_file(self, file_path: str) -> None:
         object_name = file_path.split("/")[-1]
         client = self.get_client()
         with open(file_path, "rb") as file:
@@ -45,20 +46,23 @@ class S3Client:
         content_type: str | None = None,
     ) -> str:
         client = self.get_client()
+        s3_key = s3_key.lstrip("/")   # <-- чтобы не было "/mods/..."  :contentReference[oaicite:2]{index=2}
+
         params: dict[str, Any] = {
             "Bucket": self.bucket_name,
             "Key": s3_key,
-            "Expires": expiration,
         }
-
         if content_type:
-            params["ContentType"] = content_type
+            params["ContentType"] = content_type  # если подписываешь, пошлёшь тот же header
 
         try:
-            presigned_url: str = client.generate_presigned_url(
-                "put_object", Params=params
+            url = client.generate_presigned_url(
+                ClientMethod="put_object",
+                Params=params,
+                ExpiresIn=expiration,   # правильно
+                HttpMethod="PUT",
             )
-            return presigned_url
+            return url
         except Exception as e:
             raise Exception(
                 f"Ошибка при генерации presigned URL для загрузки: {e!s}"
