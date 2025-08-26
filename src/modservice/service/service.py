@@ -14,7 +14,12 @@ class ModService:
         self, mod_title: str, author_id: int, filename: str, description: str
     ) -> tuple[int, str, str]:
         return _create_mod(
-            self._repo, self._s3_service, mod_title, author_id, filename, description
+            self._repo,
+            self._s3_service,
+            mod_title,
+            author_id,
+            filename,
+            description,
         )
 
     def generate_s3_key(
