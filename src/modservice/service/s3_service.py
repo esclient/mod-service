@@ -32,13 +32,9 @@ class S3Service:
             safe_title = "_".join(
                 filter(None, safe_title.split("_"))
             )  # Убираем множественные подчеркивания
-            s3_key = (
-                f"{author_id}/{timestamp}_{safe_title}{file_extension}"
-            )
+            s3_key = f"{author_id}/{timestamp}_{safe_title}{file_extension}"
         else:
-            s3_key = (
-                f"{author_id}/{timestamp}_{base_filename}{file_extension}"
-            )
+            s3_key = f"{author_id}/{timestamp}_{base_filename}{file_extension}"
 
         return s3_key
 
