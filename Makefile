@@ -13,13 +13,7 @@ MKDIR	 = powershell -Command "New-Item -ItemType Directory -Force -Path"
 RM		 = powershell -NoProfile -Command "Remove-Item -Path '$(TMP_DIR)' -Recurse -Force"
 DOWN	 = powershell -Command "Invoke-WebRequest -Uri"
 DOWN_OUT = -OutFile
-FIX_IMPORTS = powershell -Command "& { \
-	Get-ChildItem -Path '$(OUT_DIR)' -Filter '*_pb2_grpc.py' | \
-	ForEach-Object { \
-		(Get-Content \$$_.FullName) -replace '^import (.*_pb2)', 'from . import \$$1' | \
-		Set-Content -Path \$$_.FullName -Encoding UTF8 \
-	} \
-}"
+FIX_IMPORTS = powershell -Command "Get-ChildItem -Path '$(OUT_DIR)' -Filter '*_pb2_grpc.py' | ForEach-Object { (Get-Content $$_.FullName) -replace '^import (.*_pb2)', 'from . import $$1' | Set-Content -Path $$_.FullName -Encoding UTF8 }"
 else
 MKDIR	 = mkdir -p
 RM		 = rm -rf $(TMP_DIR)
