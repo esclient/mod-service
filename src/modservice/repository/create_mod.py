@@ -13,7 +13,8 @@ def create_mod(
     try:
         with conn.cursor():
             # Вставка нового мода в базу данных - на будущее для работы с бд
-            # надо не забыть поменять тип данных на возврат с tuple[int, str, str] на int, так как будем возвращать success
+            # надо не забыть поменять тип данных на возврат
+            # с tuple[int, str, str] на int, так как будем возвращать success
             # cursor.execute(
             #     """
             #     INSERT INTO mods (mod_title, author_id, filename, description, s3_key)
