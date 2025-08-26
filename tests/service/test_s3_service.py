@@ -23,7 +23,7 @@ class TestS3Service:
 
         s3_key = s3_service.generate_s3_key(author_id, filename)
 
-        assert s3_key.startswith(f"mods/{author_id}/")
+        assert s3_key.startswith(f"{author_id}/")
         assert s3_key.endswith("_test_mod.zip")
         assert "_" in s3_key  # Должен содержать timestamp
 
@@ -36,7 +36,7 @@ class TestS3Service:
 
         s3_key = s3_service.generate_s3_key(author_id, filename, mod_title)
 
-        assert s3_key.startswith(f"mods/{author_id}/")
+        assert s3_key.startswith(f"{author_id}/")
         assert s3_key.endswith("_Awesome_Mod_v2_0.rar")
         assert "_" in s3_key
 
@@ -49,7 +49,7 @@ class TestS3Service:
 
         s3_key = s3_service.generate_s3_key(author_id, filename, mod_title)
 
-        assert s3_key.startswith(f"mods/{author_id}/")
+        assert s3_key.startswith(f"{author_id}/")
         assert s3_key.endswith("_TestMod_v1_0.zip")
         assert "@" not in s3_key
         assert "#" not in s3_key
@@ -78,7 +78,7 @@ class TestS3Service:
         content_type = "application/zip"
 
         # Настраиваем mock
-        expected_s3_key = "mods/123/20231201_120000_Test_Mod.zip"
+        expected_s3_key = "123/20231201_120000_Test_Mod.zip"
         expected_presigned_url = "https://example.com/presigned-url"
 
         # Мокаем generate_s3_key через patch
@@ -109,7 +109,7 @@ class TestS3Service:
         author_id = 123
         filename = "archive.7z"
 
-        expected_s3_key = "mods/123/20231201_120000_archive.7z"
+        expected_s3_key = "123/20231201_120000_archive.7z"
         expected_presigned_url = "https://example.com/presigned-url"
 
         # Мокаем generate_s3_key через patch
@@ -134,7 +134,7 @@ class TestS3Service:
     def test_get_file_info_from_s3_key_valid(
         self, s3_service: S3Service
     ) -> None:
-        s3_key = "mods/123/20231201_120000_Test_Mod.zip"
+        s3_key = "123/20231201_120000_Test_Mod.zip"
 
         info = s3_service.get_file_info_from_s3_key(s3_key)
 
@@ -157,7 +157,7 @@ class TestS3Service:
     def test_get_file_info_from_s3_key_malformed(
         self, s3_service: S3Service
     ) -> None:
-        s3_key = "mods/abc/not_a_number/file.zip"  # author_id не число
+        s3_key = "abc/not_a_number/file.zip"  # author_id не число
 
         info = s3_service.get_file_info_from_s3_key(s3_key)
 

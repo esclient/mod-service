@@ -33,11 +33,11 @@ class S3Service:
                 filter(None, safe_title.split("_"))
             )  # Убираем множественные подчеркивания
             s3_key = (
-                f"mods/{author_id}/{timestamp}_{safe_title}{file_extension}"
+                f"{author_id}/{timestamp}_{safe_title}{file_extension}"
             )
         else:
             s3_key = (
-                f"mods/{author_id}/{timestamp}_{base_filename}{file_extension}"
+                f"{author_id}/{timestamp}_{base_filename}{file_extension}"
             )
 
         return s3_key
@@ -76,11 +76,11 @@ class S3Service:
     def get_file_info_from_s3_key(self, s3_key: str) -> dict[str, Any]:
         try:
             parts = s3_key.split("/")
-            if len(parts) >= 3 and parts[0] == "mods":
-                author_id = int(parts[1])
+            if len(parts) >= 2:
+                author_id = int(parts[0])
 
                 # Разбираем оставшуюся часть
-                remaining_parts = parts[2:]
+                remaining_parts = parts[1:]
                 if len(remaining_parts) == 1:
                     timestamp_filename = remaining_parts[
                         0
