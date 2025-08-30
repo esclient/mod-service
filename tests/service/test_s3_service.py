@@ -109,9 +109,8 @@ class TestS3Service:
             expected_presigned_url
         )
 
-        s3_key, presigned_url = s3_service.generate_upload_url(
-            author_id, filename
-        )
+        # s3_key, presigned_url
+        _, _ = s3_service.generate_upload_url(author_id, filename)
 
         # Проверяем, что content_type был автоматически определен
         mock_s3_client.generate_presigned_put_url.assert_called_once_with(

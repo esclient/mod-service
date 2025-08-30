@@ -1,6 +1,6 @@
 -include .env
 
-PROTO_TAG ?= v0.0.17
+PROTO_TAG ?= v0.0.18
 PROTO_NAME := mod.proto
 
 TMP_DIR := .proto
@@ -69,3 +69,7 @@ lint:
 
 test:
 	pytest
+
+
+dev-check: format lint test
+	@echo "All checks passed! ✅"
