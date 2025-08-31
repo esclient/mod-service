@@ -182,7 +182,7 @@ class S3Client:
                 ExpiresIn=expiration
             )
 
-            logger.info(f"Presigned PUT URL сгенерирован, действителен {self.time_format(expiration)}\nPUT URL: {url}")
+            logger.info(f"Presigned PUT URL сгенерирован для {s3_key}")
             return url
             
         except Exception as e:
@@ -225,7 +225,7 @@ class S3Client:
                 ExpiresIn=expiration
             )
             
-            logger.info(f"Presigned GET URL сгенерирован, действителен {self.time_format(expiration)} секунд\nGET URL: {url}")
+            logger.info(f"Presigned GET URL сгенерирован для {s3_key}")
             return url
             
         except Exception as e:

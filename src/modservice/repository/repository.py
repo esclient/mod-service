@@ -23,16 +23,6 @@ class ModRepository:
         mod_id: int,
         author_id: int,
     ) -> str:
-        """
-        Создает и сохраняет S3 ключ для мода
-        
-        Args:
-            mod_id: ID мода
-            author_id: ID автора
-            
-        Returns:
-            str: Созданный S3 ключ
-        """
         return _insert_s3_key(
             self._db_pool, mod_id, author_id
         )
