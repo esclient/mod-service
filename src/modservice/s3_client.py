@@ -1,8 +1,16 @@
-from typing import Any
-from botocore.session import get_session  # type: ignore[import-untyped]
-from botocore.config import Config  # <-- добавить
+import os
+import logging
+from typing import Any, Optional
+import botocore.session
+from botocore.exceptions import ClientError
+from botocore.client import Config
+
+logger = logging.getLogger(__name__)
+
 
 class S3Client:
+    """Клиент для работы с S3-совместимым хранилищем через botocore"""
+    
     def __init__(
         self,
         access_key: str,
@@ -11,33 +19,126 @@ class S3Client:
         bucket_name: str,
         verify: bool,
     ) -> None:
-        self.config: dict[str, Any] = {
-            "aws_access_key_id": access_key,
-            "aws_secret_access_key": secret_key,
-            "endpoint_url": endpoint_url,
-            "verify": verify,
-            "region_name": "us-east-1",  # <-- добавить
-            "config": Config(            # <-- добавить
-                signature_version="s3v4",
-                s3={"addressing_style": "path"},
-            ),
-        }
-
+        self.endpoint_url = endpoint_url
+        self.access_key = access_key
+        self.secret_key = secret_key
         self.bucket_name = bucket_name
-        self.session = get_session()
+        self.ssl_verify = verify
+        
+        # Создаем сессию botocore
+        self.session = botocore.session.get_session()
+        
+        # ИСПРАВЛЕНИЕ: Правильная конфигурация для reg.ru S3
+        self.config = Config(
+            signature_version='s3v4',
+            s3={
+                'addressing_style': 'virtual'  # Используем virtual-hosted style
+            },
+            region_name='ru-central-1'  # Правильный регион для reg.ru
+        )
+        
+        logger.info(f"Инициализирован S3Client для бакета: {self.bucket_name}")
+        logger.info(f"Endpoint: {self.endpoint_url}")
+        logger.info(f"SSL Verify: {self.ssl_verify}")
+        logger.info(f"Addressing style: virtual")
+        logger.info(f"Region: ru-central-1")
 
     def get_client(self) -> Any:
-        return self.session.create_client("s3", **self.config)  # ок  :contentReference[oaicite:1]{index=1}
+        """Создает и возвращает S3 клиент"""
+        return self.session.create_client(
+            's3',
+            endpoint_url=self.endpoint_url,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+            config=self.config,
+            verify=self.ssl_verify,
+            region_name='ru-central-1'  # Явно указываем регион
+        )
 
-    def upload_file(self, file_path: str) -> None:
-        object_name = file_path.split("/")[-1]
-        client = self.get_client()
-        with open(file_path, "rb") as file:
-            client.put_object(
-                Bucket=self.bucket_name,
-                Key=object_name,
-                Body=file,
-            )
+    def upload_file(self, file_path: str, s3_key: Optional[str] = None) -> bool:
+        """
+        Загружает файл в S3 бакет
+        
+        Args:
+            file_path: Путь к локальному файлу
+            s3_key: Ключ (путь) в S3. Если не указан, используется имя файла
+            
+        Returns:
+            bool: True если загрузка успешна, False иначе
+        """
+        if not os.path.exists(file_path):
+            logger.error(f"Файл не найден: {file_path}")
+            return False
+            
+        if s3_key is None:
+            s3_key = os.path.basename(file_path)
+        
+        try:
+            logger.info(f"Загружаем файл {file_path} как {s3_key}")
+            
+            client = self.get_client()
+            with open(file_path, 'rb') as file:
+                client.put_object(
+                    Bucket=self.bucket_name,
+                    Key=s3_key,
+                    Body=file
+                )
+            
+            logger.info(f"Файл успешно загружен: {s3_key}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Ошибка при загрузке файла {file_path}: {str(e)}")
+            return False
+
+    def download_file(self, s3_key: str, local_path: str) -> bool:
+        """
+        Скачивает файл из S3 бакета
+        
+        Args:
+            s3_key: Ключ файла в S3
+            local_path: Путь для сохранения локального файла
+            
+        Returns:
+            bool: True если скачивание успешно, False иначе
+        """
+        try:
+            logger.info(f"Скачиваем файл {s3_key} в {local_path}")
+            
+            # Создаем директорию если она не существует
+            dir_path = os.path.dirname(local_path)
+            if dir_path:
+                os.makedirs(dir_path, exist_ok=True)
+            
+            client = self.get_client()
+            response = client.get_object(Bucket=self.bucket_name, Key=s3_key)
+            
+            with open(local_path, 'wb') as file:
+                file.write(response['Body'].read())
+            
+            logger.info(f"Файл успешно скачан: {local_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Ошибка при скачивании файла {s3_key}: {str(e)}")
+            return False
+
+    def time_format(self, seconds: int) -> str:
+        if seconds is not None:
+            seconds = int(seconds)
+            d = seconds // (3600 * 24)
+            h = seconds // 3600 % 24
+            m = seconds % 3600 // 60
+            s = seconds % 3600 % 60
+            if d > 0:
+                return '{:02d}d {:02d}h {:02d}m {:02d}s'.format(d, h, m, s)
+            elif h > 0:
+                return '{:02d}h {:02d}m {:02d}s'.format(h, m, s)
+            elif m > 0:
+                return '{:02d}m {:02d}s'.format(m, s)
+            elif s > 0:
+                return '{:02d}s'.format(s)
+        return '-'
 
     def generate_presigned_put_url(
         self,
@@ -45,25 +146,128 @@ class S3Client:
         expiration: int = 3600,
         content_type: str | None = None,
     ) -> str:
-        client = self.get_client()
-        s3_key = s3_key.lstrip("/")   # <-- чтобы не было "/mods/..."  :contentReference[oaicite:2]{index=2}
-
-        params: dict[str, Any] = {
-            "Bucket": self.bucket_name,
-            "Key": s3_key,
-        }
-        if content_type:
-            params["ContentType"] = content_type  # если подписываешь, пошлёшь тот же header
-
+        """
+        Генерирует presigned URL для загрузки файла (PUT)
+        
+        Args:
+            s3_key: Ключ файла в S3
+            expiration: Время жизни ссылки в секундах (по умолчанию 1 час)
+            content_type: MIME тип контента (опционально)
+            
+        Returns:
+            str: Presigned URL для загрузки
+            
+        Raises:
+            Exception: В случае ошибки генерации URL
+        """
         try:
+            # Убираем ведущий слэш если есть
+            s3_key = s3_key.lstrip("/")
+            
+            logger.info(f"Генерируем presigned PUT URL для {s3_key}")
+            
+            client = self.get_client()
+            
+            params: dict[str, Any] = {
+                "Bucket": self.bucket_name,
+                "Key": s3_key,
+            }
+            
+            if content_type:
+                params["ContentType"] = content_type
+            
             url = client.generate_presigned_url(
-                ClientMethod="put_object",
+                'put_object',
                 Params=params,
-                ExpiresIn=expiration,   # правильно
-                HttpMethod="PUT",
+                ExpiresIn=expiration
             )
+
+            logger.info(f"Presigned PUT URL сгенерирован, действителен {self.time_format(expiration)}\nPUT URL: {url}")
             return url
+            
         except Exception as e:
-            raise Exception(
-                f"Ошибка при генерации presigned URL для загрузки: {e!s}"
-            ) from e
+            error_msg = f"Ошибка при генерации presigned PUT URL для {s3_key}: {e!s}"
+            logger.error(error_msg)
+            raise Exception(error_msg) from e
+
+    def generate_presigned_get_url(
+        self,
+        s3_key: str,
+        expiration: int = 3600,
+    ) -> str:
+        """
+        Генерирует presigned URL для скачивания файла (GET)
+        
+        Args:
+            s3_key: Ключ файла в S3
+            expiration: Время жизни ссылки в секундах (по умолчанию 1 час)
+            
+        Returns:
+            str: Presigned URL для скачивания
+            
+        Raises:
+            Exception: В случае ошибки генерации URL
+        """
+        try:
+            # Убираем ведущий слэш если есть
+            s3_key = s3_key.lstrip("/")
+            
+            logger.info(f"Генерируем presigned GET URL для {s3_key}")
+            
+            client = self.get_client()
+            
+            url = client.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': self.bucket_name,
+                    'Key': s3_key
+                },
+                ExpiresIn=expiration
+            )
+            
+            logger.info(f"Presigned GET URL сгенерирован, действителен {self.time_format(expiration)} секунд\nGET URL: {url}")
+            return url
+            
+        except Exception as e:
+            error_msg = f"Ошибка при генерации presigned GET URL для {s3_key}: {e!s}"
+            logger.error(error_msg)
+            raise Exception(error_msg) from e
+
+    def list_objects(self, prefix: str = "") -> list[dict[str, Any]]:
+        """
+        Получает список всех объектов в бакете
+        
+        Args:
+            prefix: Префикс для фильтрации объектов (например, для подпапки)
+            
+        Returns:
+            list[dict]: Список объектов с их метаданными
+        """
+        try:
+            logger.info(f"Получаем список объектов с префиксом: '{prefix}'")
+            
+            client = self.get_client()
+            objects = []
+            paginator = client.get_paginator('list_objects_v2')
+            
+            page_iterator = paginator.paginate(
+                Bucket=self.bucket_name,
+                Prefix=prefix
+            )
+            
+            for page in page_iterator:
+                if 'Contents' in page:
+                    for obj in page['Contents']:
+                        objects.append({
+                            'key': obj['Key'],
+                            'size': obj['Size'],
+                            'last_modified': obj['LastModified'],
+                            'etag': obj['ETag']
+                        })
+            
+            logger.info(f"Найдено {len(objects)} объектов")
+            return objects
+            
+        except Exception as e:
+            logger.error(f"Ошибка при получении списка объектов: {str(e)}")
+            return []
