@@ -13,7 +13,6 @@ def CreateMod(
     mod_id, s3_key, upload_url = service.create_mod(
         request.mod_title,
         request.author_id,
-        request.filename,
         request.description,
     )
 

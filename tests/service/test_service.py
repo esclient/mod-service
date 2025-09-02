@@ -93,7 +93,6 @@ class TestModService:
     ) -> None:
         mod_title = "Test Mod"
         author_id = 123
-        filename = "test.zip"
         description = "Test description"
 
         expected_result: tuple[int, str, str] = (
@@ -110,8 +109,6 @@ class TestModService:
                 mock_create_mod,
             )
 
-            result = mod_service.create_mod(
-                mod_title, author_id, filename, description
-            )
+            result = mod_service.create_mod(mod_title, author_id, description)
 
             assert result == expected_result

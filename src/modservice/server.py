@@ -30,6 +30,7 @@ def serve() -> None:
         bucket_name=settings.s3_bucket_name,
         verify=settings.s3_ssl_verify,
     )
+
     s3_service = S3Service(s3_client)
 
     repo = ModRepository(db_pool)

@@ -11,14 +11,13 @@ class ModService:
         self._s3_service = s3_service
 
     def create_mod(
-        self, mod_title: str, author_id: int, filename: str, description: str
+        self, mod_title: str, author_id: int, description: str
     ) -> tuple[int, str, str]:
         return _create_mod(
             self._repo,
             self._s3_service,
             mod_title,
             author_id,
-            filename,
             description,
         )
 
@@ -41,3 +40,21 @@ class ModService:
 
     def get_file_info_from_s3_key(self, s3_key: str) -> dict[str, Any]:
         return self._s3_service.get_file_info_from_s3_key(s3_key)
+
+    def generate_mod_download_url(
+        self,
+        s3_key_prefix: str,
+        expiration: int = 3600,
+    ) -> str:
+        return self._s3_service.generate_mod_download_url(
+            s3_key_prefix, expiration
+        )
+
+    def generate_mod_upload_url(
+        self,
+        s3_key_prefix: str,
+        expiration: int = 3600,
+    ) -> str:
+        return self._s3_service.generate_mod_upload_url(
+            s3_key_prefix, expiration
+        )
