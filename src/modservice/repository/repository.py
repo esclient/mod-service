@@ -14,15 +14,11 @@ class ModRepository:
         author_id: int,
         description: str,
     ) -> int:
-        return _create_mod(
-            self._db_pool, mod_title, author_id, description
-        )
-    
+        return _create_mod(self._db_pool, mod_title, author_id, description)
+
     def insert_s3_key(
         self,
         mod_id: int,
         author_id: int,
     ) -> str:
-        return _insert_s3_key(
-            self._db_pool, mod_id, author_id
-        )
+        return _insert_s3_key(self._db_pool, mod_id, author_id)

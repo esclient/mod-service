@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -87,7 +87,9 @@ class TestS3Service:
         content_type = "application/zip"
 
         expected_presigned_url = "https://example.com/presigned-url"
-        mock_s3_client.generate_presigned_put_url.return_value = expected_presigned_url
+        mock_s3_client.generate_presigned_put_url.return_value = (
+            expected_presigned_url
+        )
 
         s3_key, presigned_url = s3_service.generate_upload_url(
             author_id, filename, mod_title, expiration, content_type
@@ -113,7 +115,9 @@ class TestS3Service:
         content_type = "application/zip"
 
         expected_presigned_url = "https://example.com/presigned-url"
-        mock_s3_client.generate_presigned_put_url.return_value = expected_presigned_url
+        mock_s3_client.generate_presigned_put_url.return_value = (
+            expected_presigned_url
+        )
 
         presigned_url = s3_service.generate_upload_url_for_key(
             s3_key, expiration, content_type
@@ -136,7 +140,9 @@ class TestS3Service:
         expiration = 3600
 
         expected_presigned_url = "https://example.com/download-url"
-        mock_s3_client.generate_presigned_get_url.return_value = expected_presigned_url
+        mock_s3_client.generate_presigned_get_url.return_value = (
+            expected_presigned_url
+        )
 
         presigned_url = s3_service.generate_download_url(s3_key, expiration)
 
@@ -174,7 +180,9 @@ class TestS3Service:
         result = s3_service.download_file(s3_key, local_path)
 
         assert result is True
-        mock_s3_client.download_file.assert_called_once_with(s3_key, local_path)
+        mock_s3_client.download_file.assert_called_once_with(
+            s3_key, local_path
+        )
 
     def test_list_files(
         self, s3_service: S3Service, mock_s3_client: MagicMock
@@ -183,7 +191,7 @@ class TestS3Service:
         prefix = "123/"
         expected_files = [
             {"key": "123/456", "size": 1024},
-            {"key": "123/789", "size": 2048}
+            {"key": "123/789", "size": 2048},
         ]
 
         mock_s3_client.list_objects.return_value = expected_files
@@ -201,7 +209,9 @@ class TestS3Service:
         filename = "archive.7z"
 
         expected_presigned_url = "https://example.com/presigned-url"
-        mock_s3_client.generate_presigned_put_url.return_value = expected_presigned_url
+        mock_s3_client.generate_presigned_put_url.return_value = (
+            expected_presigned_url
+        )
 
         s3_key, presigned_url = s3_service.generate_upload_url(
             author_id, filename
@@ -210,9 +220,9 @@ class TestS3Service:
         # Проверяем, что content_type был автоматически определен
         mock_s3_client.generate_presigned_put_url.assert_called_once()
         args, kwargs = mock_s3_client.generate_presigned_put_url.call_args
-        
-        assert kwargs['s3_key'].startswith(f"{author_id}/")
-        assert kwargs['expiration'] == 3600  # Значение по умолчанию
+
+        assert kwargs["s3_key"].startswith(f"{author_id}/")
+        assert kwargs["expiration"] == 3600  # Значение по умолчанию
         # content_type может быть None или автоопределен
 
     def test_get_file_info_from_s3_key_mod_id_format(
@@ -265,18 +275,23 @@ class TestS3Service:
     def test_sanitize_filename(self, s3_service: S3Service) -> None:
         """Тест очистки имени файла"""
         unsafe_filename = "test<>:|?*file.zip"
-        
+
         safe_filename = s3_service._sanitize_filename(unsafe_filename)
-        
+
         assert safe_filename == "test______file.zip"
-        assert all(char not in safe_filename for char in ['<', '>', ':', '|', '?', '*'])
+        assert all(
+            char not in safe_filename
+            for char in ["<", ">", ":", "|", "?", "*"]
+        )
 
     def test_sanitize_title(self, s3_service: S3Service) -> None:
         """Тест очистки заголовка мода"""
         unsafe_title = "My Awesome Mod! v2.0 @#$%"
-        
+
         safe_title = s3_service._sanitize_title(unsafe_title)
-        
+
         assert safe_title == "My_Awesome_Mod_v2.0"
         assert " " not in safe_title
-        assert all(char not in safe_title for char in ['!', '@', '#', '$', '%'])
+        assert all(
+            char not in safe_title for char in ["!", "@", "#", "$", "%"]
+        )
