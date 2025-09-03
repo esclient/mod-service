@@ -2,8 +2,8 @@ import logging
 import os
 from typing import Any
 
-import botocore.session  # type: ignore[import-untyped]
-from botocore.client import Config  # type: ignore[import-untyped]
+import botocore.session
+from botocore.client import Config
 
 logger = logging.getLogger(__name__)
 
