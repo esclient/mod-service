@@ -2,6 +2,7 @@ from psycopg2.pool import ThreadedConnectionPool
 
 from modservice.repository.create_mod import create_mod as _create_mod
 from modservice.repository.insert_s3_key import insert_s3_key as _insert_s3_key
+from modservice.repository.get_mod_download_link import get_mod_download_link as _get_mod_download_link
 
 
 class ModRepository:
@@ -22,3 +23,9 @@ class ModRepository:
         author_id: int,
     ) -> str:
         return _insert_s3_key(self._db_pool, mod_id, author_id)
+    
+    def get_mod_download_link(
+        self,
+        mod_id: int
+    ) -> str:
+        return _get_mod_download_link(self._db_pool, mod_id)

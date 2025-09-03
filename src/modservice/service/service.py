@@ -58,3 +58,12 @@ class ModService:
         return self._s3_service.generate_mod_upload_url(
             s3_key_prefix, expiration
         )
+    
+    def get_mod_download_link(
+        self,
+        mod_id: int,
+        expiration: int = 3600,
+    ) -> str:
+        s3_key = self._repo.get_mod_download_link(mod_id)
+        return self._s3_service.generate_mod_download_url(s3_key, expiration)
+

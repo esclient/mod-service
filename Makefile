@@ -1,6 +1,6 @@
 -include .env
 
-PROTO_TAG ?= v0.0.16
+PROTO_TAG ?= v0.1.0
 PROTO_NAME := mod.proto
 
 TMP_DIR := .proto
@@ -69,3 +69,5 @@ lint:
 
 test:
 	pytest
+
+dev-check: format lint test
