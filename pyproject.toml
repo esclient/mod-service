@@ -14,7 +14,6 @@ exclude = '''
   | build
   | dist
   | src/modservice/grpc
-  | .mypy_cache
 )/
 '''
 
@@ -24,9 +23,10 @@ line_length = 79
 known_first_party = ["app"]
 multi_line_output = 3
 include_trailing_comma = true
+force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
-skip = [".venv", "venv", "src/modservice/grpc"]
+skip = [".venv", "src/modservice/grpc"]
 
 [tool.flake8]
 max-line-length = 120
@@ -36,20 +36,18 @@ per-file-ignores = [
     "tests/*:T20,ARG001"
 ]
 exclude = [
-    ".venv",
-    "venv",
-    "__pycache__",
-    "build",
-    "dist",
-    ".mypy_cache",
-    "src/modservice/grpc"
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "src/modservice/grpc",
 ]
 
 [tool.ruff]
 line-length = 120
 target-version = "py310"
 preview = true
-exclude = [".venv", "venv", "build", "dist", ".mypy_cache", "src/modservice/grpc"]
+exclude = [".venv", "build", "dist", "src/modservice/grpc"]
 
 [tool.ruff.lint]
 select = [
@@ -72,17 +70,14 @@ ignore = [
     "RUF003",
     "RUF002"
 ]
-per-file-ignores = {
-    "tests/*" = ["T20", "ARG001"]
-}
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["T20", "ARG001"]
 
 [tool.mypy]
 python_version = "3.10"
 strict = true
-exclude = [
-    "^src/modservice/grpc/",
-    "src/modservice/grpc/.*",
-]
+exclude = 'src(?:[/\\])modservice(?:[/\\])grpc'
 warn_unused_configs = true
 warn_return_any = true
 disallow_untyped_defs = true
@@ -96,29 +91,13 @@ explicit_package_bases = true
 mypy_path = ["src"]
 plugins = ["pydantic.mypy"]
 
-[[tool.mypy.overrides]]
-module = [
-    "grpc.*", 
-    "grpc_reflection.*",
-    "botocore.*",
-    "pytest.*",
-    "pytest_mock.*",
-    "pydantic_settings.*",
-    "google.protobuf.*",
-    "psycopg2.*",
-    "modservice.grpc.*",
-    "tests.*",
-    "misc",
-    "modservice.settings"
-]
-ignore_missing_imports = true
-ignore_errors = true
-
 [project]
 name = "modservice"
 version = "0.0.1"
 description = "mod-service for esclient"
-authors = [{name = "esclient"}]
+authors = [
+    {name = "esclient"},
+]
 dependencies = [
     "grpcio-reflection<2.0.0,>=1.72.1",
     "pydantic<3.0.0,>=2.11.7",
