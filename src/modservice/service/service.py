@@ -1,8 +1,8 @@
 from typing import Any
 
 from modservice.repository.repository import ModRepository
-from modservice.service.create_mod import create_mod as _create_mod
 from modservice.service.confirm_upload import confirm_upload as _confirm_upload
+from modservice.service.create_mod import create_mod as _create_mod
 from modservice.service.s3_service import S3Service
 
 
@@ -67,6 +67,6 @@ class ModService:
     ) -> str:
         s3_key = self._repo.get_mod_s3_key(mod_id)
         return self._s3_service.generate_mod_download_url(s3_key, expiration)
-    
+
     def confirm_upload(self, mod_id: int) -> bool:
         return _confirm_upload(self._repo, mod_id)
