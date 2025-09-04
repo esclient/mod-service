@@ -9,8 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 class S3Client:
-    """Клиент для работы с S3-совместимым хранилищем через botocore"""
-
     def __init__(
         self,
         access_key: str,
@@ -25,16 +23,12 @@ class S3Client:
         self.bucket_name = bucket_name
         self.ssl_verify = verify
 
-        # Создаем сессию botocore
         self.session = botocore.session.get_session()
 
-        # ИСПРАВЛЕНИЕ: Правильная конфигурация для reg.ru S3
         self.config = Config(
             signature_version="s3v4",
-            s3={
-                "addressing_style": "virtual"  # Используем virtual-hosted style
-            },
-            region_name="ru-central-1",  # Правильный регион для reg.ru
+            s3={"addressing_style": "virtual"},
+            region_name="ru-central-1",
         )
 
         logger.info(f"Инициализирован S3Client для бакета: {self.bucket_name}")
@@ -44,7 +38,6 @@ class S3Client:
         logger.info("Region: ru-central-1")
 
     def get_client(self) -> Any:
-        """Создает и возвращает S3 клиент"""
         return self.session.create_client(
             "s3",
             endpoint_url=self.endpoint_url,
@@ -52,20 +45,10 @@ class S3Client:
             aws_secret_access_key=self.secret_key,
             config=self.config,
             verify=self.ssl_verify,
-            region_name="ru-central-1",  # Явно указываем регион
+            region_name="ru-central-1",
         )
 
     def upload_file(self, file_path: str, s3_key: str | None = None) -> bool:
-        """
-        Загружает файл в S3 бакет
-
-        Args:
-            file_path: Путь к локальному файлу
-            s3_key: Ключ (путь) в S3. Если не указан, используется имя файла
-
-        Returns:
-            bool: True если загрузка успешна, False иначе
-        """
         if not os.path.exists(file_path):
             logger.error(f"Файл не найден: {file_path}")
             return False
@@ -90,20 +73,7 @@ class S3Client:
             return False
 
     def download_file(self, s3_key: str, local_path: str) -> bool:
-        """
-        Скачивает файл из S3 бакета
-
-        Args:
-            s3_key: Ключ файла в S3
-            local_path: Путь для сохранения локального файла
-
-        Returns:
-            bool: True если скачивание успешно, False иначе
-        """
         try:
-            logger.info(f"Скачиваем файл {s3_key} в {local_path}")
-
-            # Создаем директорию если она не существует
             dir_path = os.path.dirname(local_path)
             if dir_path:
                 os.makedirs(dir_path, exist_ok=True)
@@ -114,7 +84,6 @@ class S3Client:
             with open(local_path, "wb") as file:
                 file.write(response["Body"].read())
 
-            logger.info(f"Файл успешно скачан: {local_path}")
             return True
 
         except Exception as e:

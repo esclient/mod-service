@@ -213,13 +213,16 @@ class TestS3Service:
             expected_presigned_url
         )
 
-        s3_key, presigned_url = s3_service.generate_upload_url(
+        _s3_key, _presigned_url = s3_service.generate_upload_url(
             author_id, filename
-        )
+        )  # noqa: ARG001
 
         # Проверяем, что content_type был автоматически определен
         mock_s3_client.generate_presigned_put_url.assert_called_once()
-        args, kwargs = mock_s3_client.generate_presigned_put_url.call_args
+        (
+            _args,
+            kwargs,
+        ) = mock_s3_client.generate_presigned_put_url.call_args  # noqa: ARG001
 
         assert kwargs["s3_key"].startswith(f"{author_id}/")
         assert kwargs["expiration"] == 3600  # Значение по умолчанию

@@ -25,3 +25,27 @@ class CreateModResponse(_message.Message):
     upload_url: str
     s3_key: str
     def __init__(self, mod_id: _Optional[int] = ..., upload_url: _Optional[str] = ..., s3_key: _Optional[str] = ...) -> None: ...
+
+class ConfirmUploadRequest(_message.Message):
+    __slots__ = ("mod_id",)
+    MOD_ID_FIELD_NUMBER: _ClassVar[int]
+    mod_id: int
+    def __init__(self, mod_id: _Optional[int] = ...) -> None: ...
+
+class ConfirmUploadResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class GetModDownloadLinkRequest(_message.Message):
+    __slots__ = ("mod_id",)
+    MOD_ID_FIELD_NUMBER: _ClassVar[int]
+    mod_id: int
+    def __init__(self, mod_id: _Optional[int] = ...) -> None: ...
+
+class GetModDownloadLinkResponse(_message.Message):
+    __slots__ = ("link_url",)
+    LINK_URL_FIELD_NUMBER: _ClassVar[int]
+    link_url: str
+    def __init__(self, link_url: _Optional[str] = ...) -> None: ...
