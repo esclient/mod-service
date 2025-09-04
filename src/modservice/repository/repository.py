@@ -1,7 +1,7 @@
 from psycopg2.pool import ThreadedConnectionPool
 
 from modservice.repository.create_mod import create_mod as _create_mod
-from modservice.repository.get_mod_download_link import (
+from modservice.repository.get_mod_s3_key import (
     get_mod_s3_key as _get_mod_s3_key,
 )
 from modservice.repository.insert_s3_key import insert_s3_key as _insert_s3_key
