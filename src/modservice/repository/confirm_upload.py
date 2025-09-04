@@ -7,7 +7,7 @@ def confirm_upload(db_pool: ThreadedConnectionPool, mod_id: int) -> bool:
         with conn.cursor() as cursor:
             cursor.execute(
                 """
-                UPDATE mods 
+                UPDATE mods
                 SET status = 'UPLOADED', updated_at = NOW()
                 WHERE id = %s AND status = 'UPLOADING'
                 """,
