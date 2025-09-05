@@ -126,8 +126,8 @@ dev = [
     "flake8-pyproject>=1.2.3",
     "ruff>=0.0.278,<0.1.0",
     "mypy>=1.5.1,<2.0.0",
-    "types-protobuf>=6.30.2.20250703",
+    "types-protobuf>=6.30.2.20250822",
     "grpc-stubs>=1.53.0.6",
-    "pytest-mock>=3.14.1",
+    "pytest-mock>=3.15.0",
     "types-psycopg2>=2.9.21.20250809",
 ]
