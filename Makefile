@@ -29,16 +29,37 @@ CHECK_PYTHON = command -v python3 >/dev/null 2>&1 || { echo "Error: Python not f
 CHECK_PDM = command -v pdm >/dev/null 2>&1 || { echo "Error: PDM not found. Install with: pip install pdm"; exit 1; }
 endif
 
-check-system:
+check-syste:
 	@$(CHECK_PYTHON)
 	@$(CHECK_PDM)
 
+check-system:
+ifeq ($(OS),Windows_NT)
+	@powershell -Command "try { python --version | Out-Null } catch { Write-Host 'Python not found'; exit 1 }"
+	@powershell -Command "try { pdm --version | Out-Null } catch { Write-Host 'PDM not found. Install with: pip install pdm'; exit 1 }"
+else
+	@command -v python3 >/dev/null 2>&1 || { echo "Error: Python not found"; exit 1; }
+	@command -v pdm >/dev/null 2>&1 || { echo "Error: PDM not found. Install with: pip install pdm"; exit 1; }
+endif
 
 bootstrap:
-	@pdm venv create --force || true
+ifeq ($(OS),Windows_NT)
+	@powershell -Command "& {
+	    pdm venv create --force
+	}"
+else
+	@pdm venv create --force
+endif
+
 
 install: bootstrap check-system
+ifeq ($(OS),Windows_NT)
+	@powershell -Command "pdm install"
+else
 	@pdm install
+endif
+
+
 
 check-deps:
 	@pdm list
