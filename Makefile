@@ -33,7 +33,12 @@ check-system:
 	@$(CHECK_PYTHON)
 	@$(CHECK_PDM)
 
-install: check-system
+
+bootstrap:
+	@pdm venv create --force
+	@pdm use -f .venv
+
+install: bootstrap check-system
 	@pdm install
 
 check-deps:
@@ -41,6 +46,10 @@ check-deps:
 
 clean:
 	@$(RM)
+
+clean venv:
+	@echo "Removing pdm-managed virtual environment..."
+	@pdm venv remove -y || true
 
 fetch-proto:
 	@$(MKDIR) "$(TMP_DIR)"
@@ -73,7 +82,7 @@ lint:
 test:
 	@pdm run pytest
 
-dev-check: format lint test
+dev-check: install format lint test
 
 docker-build:
 	@docker build --build-arg PORT=$(PORT) -t mod .
