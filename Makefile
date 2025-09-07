@@ -35,8 +35,7 @@ check-system:
 
 
 bootstrap:
-	@pdm venv create --force
-	@pdm use -f .venv
+	@pdm venv create --force || true
 
 install: bootstrap check-system
 	@pdm install
@@ -47,9 +46,8 @@ check-deps:
 clean:
 	@$(RM)
 
-clean venv:
-	@echo "Removing pdm-managed virtual environment..."
-	@pdm venv remove -y || true
+clean-venv:
+	@pdm venv remove -y .venv || true
 
 fetch-proto:
 	@$(MKDIR) "$(TMP_DIR)"
