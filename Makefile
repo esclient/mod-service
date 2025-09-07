@@ -2,24 +2,24 @@
 
 PROTO_TAG ?= v0.1.0
 PROTO_NAME := mod.proto
-
 TMP_DIR := .proto
 OUT_DIR := src/modservice/grpc
 
-.PHONY: clean fetch-proto get-stubs update format lint test install check-deps docker-build run
+.PHONY: clean fetch-proto get-stubs update format lint test install check-deps docker-build run bootstrap clean-venv
 
 ifeq ($(OS),Windows_NT)
-MKDIR	 = powershell -Command "New-Item -ItemType Directory -Force -Path"
-RM		 = powershell -NoProfile -Command "if (Test-Path '$(TMP_DIR)') { Remove-Item -Recurse -Force '$(TMP_DIR)' }"
-DOWN	 = powershell -Command "Invoke-WebRequest -Uri"
+MKDIR    = powershell -Command "New-Item -ItemType Directory -Force -Path"
+RM       = powershell -NoProfile -Command "if (Test-Path '$(TMP_DIR)') { Remove-Item -Recurse -Force '$(TMP_DIR)' }"
+DOWN     = powershell -Command "Invoke-WebRequest -Uri"
 DOWN_OUT = -OutFile
 FIX_IMPORTS = powershell -Command "Get-ChildItem -Path '$(OUT_DIR)' -Filter '*_pb2_grpc.py' | ForEach-Object { (Get-Content $$_.FullName) -replace '^import (.*_pb2)', 'from . import $$1' | Set-Content -Path $$_.FullName -Encoding UTF8 }"
 CHECK_PYTHON = powershell -Command "try { python --version | Out-Null } catch { Write-Host 'Python not found'; exit 1 }"
 CHECK_PDM = powershell -Command "try { pdm --version | Out-Null } catch { Write-Host 'PDM not found. Install with: pip install pdm'; exit 1 }"
+VENV_ACTIVATE = .venv\Scripts\activate
 else
-MKDIR	 = mkdir -p
-RM		 = rm -rf $(TMP_DIR)
-DOWN	 = wget
+MKDIR    = mkdir -p
+RM       = rm -rf $(TMP_DIR)
+DOWN     = wget
 DOWN_OUT = -O
 FIX_IMPORTS = \
 	for f in $(OUT_DIR)/*_pb2_grpc.py; do \
@@ -27,39 +27,28 @@ FIX_IMPORTS = \
 	done
 CHECK_PYTHON = command -v python3 >/dev/null 2>&1 || { echo "Error: Python not found"; exit 1; }
 CHECK_PDM = command -v pdm >/dev/null 2>&1 || { echo "Error: PDM not found. Install with: pip install pdm"; exit 1; }
+VENV_ACTIVATE = .venv/bin/activate
 endif
 
-check-syste:
+check-system:
 	@$(CHECK_PYTHON)
 	@$(CHECK_PDM)
 
-check-system:
-ifeq ($(OS),Windows_NT)
-	@powershell -Command "try { python --version | Out-Null } catch { Write-Host 'Python not found'; exit 1 }"
-	@powershell -Command "try { pdm --version | Out-Null } catch { Write-Host 'PDM not found. Install with: pip install pdm'; exit 1 }"
-else
-	@command -v python3 >/dev/null 2>&1 || { echo "Error: Python not found"; exit 1; }
-	@command -v pdm >/dev/null 2>&1 || { echo "Error: PDM not found. Install with: pip install pdm"; exit 1; }
-endif
-
-bootstrap:
-ifeq ($(OS),Windows_NT)
-	@powershell -Command "& {
-	    pdm venv create --force
-	}"
-else
+bootstrap: check-system
+	@echo "Creating PDM virtual environment..."
 	@pdm venv create --force
-endif
-
-
-install: bootstrap check-system
-ifeq ($(OS),Windows_NT)
-	@powershell -Command "pdm install"
-else
+	@echo "Installing dependencies..."
 	@pdm install
+	@echo ""
+	@echo "Virtual environment created successfully!"
+	@echo "To activate it manually, run:"
+ifeq ($(OS),Windows_NT)
+	@echo "  .venv\\Scripts\\activate"
+else
+	@echo "  source .venv/bin/activate"
 endif
-
-
+	@echo ""
+	@echo "Or use 'pdm shell' to enter a shell with the venv activated"
 
 check-deps:
 	@pdm list
@@ -68,7 +57,8 @@ clean:
 	@$(RM)
 
 clean-venv:
-	@pdm venv remove -y .venv || true
+	@echo "Removing PDM-managed virtual environment..."
+	@pdm venv remove -y || true
 
 fetch-proto:
 	@$(MKDIR) "$(TMP_DIR)"
@@ -113,3 +103,14 @@ run: docker-build
 		-v $(CURDIR):/app \
 		-e WATCHFILES_FORCE_POLLING=true \
 		mod
+
+# Helper target to show how to activate venv
+show-activation:
+	@echo "To activate the virtual environment:"
+ifeq ($(OS),Windows_NT)
+	@echo "  .venv\\Scripts\\activate"
+else
+	@echo "  source .venv/bin/activate"
+endif
+	@echo ""
+	@echo "Or use: pdm shell"
