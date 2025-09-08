@@ -3,7 +3,6 @@ import grpc
 from modservice.grpc import mod_pb2
 from modservice.service.service import ModService
 
-
 _ENUM_TO_DB_STATUS = {
     "UPLOADING": "UPLOADING",
     "UPLOADED": "UPLOADED",
@@ -14,7 +13,7 @@ _ENUM_TO_DB_STATUS = {
 
 def _extract_status_string(request: object) -> str:
     if hasattr(request, "status"):
-        status_value = getattr(request, "status")
+        status_value = request.status
         enum_cls = getattr(mod_pb2, "ModStatus", None)
         if enum_cls is not None and isinstance(status_value, int):
             try:
@@ -54,5 +53,3 @@ def SetStatus(
         context.set_details(f"Failed to set status: {e!s}")
 
         return mod_pb2.ConfirmUploadResponse(success=False)
-
-

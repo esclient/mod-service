@@ -1,11 +1,11 @@
 import grpc
 
 from modservice.grpc import mod_pb2, mod_pb2_grpc
-from modservice.handler.set_status import SetStatus as _set_status
 from modservice.handler.create_mod import CreateMod as _create_mod
 from modservice.handler.get_mod_download_link import (
     GetDownloadLink as _get_mod_download_link,
 )
+from modservice.handler.set_status import SetStatus as _set_status
 from modservice.service.service import ModService
 
 

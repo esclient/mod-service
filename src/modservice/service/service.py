@@ -1,9 +1,9 @@
 from typing import Any
 
 from modservice.repository.repository import ModRepository
-from modservice.service.set_status import set_status as _set_status
 from modservice.service.create_mod import create_mod as _create_mod
 from modservice.service.s3_service import S3Service
+from modservice.service.set_status import set_status as _set_status
 
 
 class ModService:

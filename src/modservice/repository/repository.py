@@ -1,11 +1,11 @@
 from psycopg2.pool import ThreadedConnectionPool
 
-from modservice.repository.set_status import set_status as _set_status
 from modservice.repository.create_mod import create_mod as _create_mod
 from modservice.repository.get_mod_s3_key import (
     get_mod_s3_key as _get_mod_s3_key,
 )
 from modservice.repository.insert_s3_key import insert_s3_key as _insert_s3_key
+from modservice.repository.set_status import set_status as _set_status
 
 
 class ModRepository:

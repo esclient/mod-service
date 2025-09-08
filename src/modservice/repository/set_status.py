@@ -3,7 +3,9 @@ from typing import cast
 from psycopg2.pool import ThreadedConnectionPool
 
 
-def set_status(db_pool: ThreadedConnectionPool, mod_id: int, status: str) -> bool:
+def set_status(
+    db_pool: ThreadedConnectionPool, mod_id: int, status: str
+) -> bool:
     conn = db_pool.getconn()
     try:
         with conn.cursor() as cursor:
@@ -23,5 +25,3 @@ def set_status(db_pool: ThreadedConnectionPool, mod_id: int, status: str) -> boo
         return False
     finally:
         db_pool.putconn(conn)
-
-
