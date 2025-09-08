@@ -5,7 +5,6 @@ from modservice.service.service import ModService
 
 
 _ENUM_TO_DB_STATUS = {
-    # Supported statuses
     "UPLOADING": "UPLOADING",
     "UPLOADED": "UPLOADED",
     "BANNED": "BANNED",
@@ -14,10 +13,8 @@ _ENUM_TO_DB_STATUS = {
 
 
 def _extract_status_string(request: object) -> str:
-    # Backward compatible: current proto lacks status field
     if hasattr(request, "status"):
         status_value = getattr(request, "status")
-        # If an enum exists in mod_pb2, prefer its Name() resolution
         enum_cls = getattr(mod_pb2, "ModStatus", None)
         if enum_cls is not None and isinstance(status_value, int):
             try:
@@ -27,8 +24,6 @@ def _extract_status_string(request: object) -> str:
                 raise ValueError(f"Unsupported status: {enum_name}")
             except Exception:
                 pass
-
-        # If it is already a string (some clients may pass stringly-typed), normalize
         if isinstance(status_value, str):
             enum_name = status_value.upper()
             if enum_name in _ENUM_TO_DB_STATUS:
