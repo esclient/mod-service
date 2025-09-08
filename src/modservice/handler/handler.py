@@ -27,9 +27,9 @@ class ModHandler(mod_pb2_grpc.ModServiceServicer):
     ) -> mod_pb2.GetModDownloadLinkResponse:
         return _get_mod_download_link(self._service, request, context)
 
-    def ConfirmUpload(
+    def SetStatus(
         self,
-        request: mod_pb2.ConfirmUploadRequest,
+        request: mod_pb2.SetStatusRequest,
         context: grpc.ServicerContext,
-    ) -> mod_pb2.ConfirmUploadResponse:
+    ) -> mod_pb2.SetStatusResponse:
         return _set_status(self._service, request, context)

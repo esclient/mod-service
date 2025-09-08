@@ -24,25 +24,27 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tmod.proto\x12\x03mod\"_\n\x10\x43reateModRequest\x12\x11\n\tmod_title\x18\x01 \x01(\t\x12\x11\n\tauthor_id\x18\x02 \x01(\x03\x12\x10\n\x08\x66ilename\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"G\n\x11\x43reateModResponse\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\x12\x12\n\nupload_url\x18\x02 \x01(\t\x12\x0e\n\x06s3_key\x18\x03 \x01(\t\"&\n\x14\x43onfirmUploadRequest\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\"(\n\x15\x43onfirmUploadResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"+\n\x19GetModDownloadLinkRequest\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\".\n\x1aGetModDownloadLinkResponse\x12\x10\n\x08link_url\x18\x01 \x01(\t2\xe7\x01\n\nModService\x12:\n\tCreateMod\x12\x15.mod.CreateModRequest\x1a\x16.mod.CreateModResponse\x12\x46\n\rConfirmUpload\x12\x19.mod.ConfirmUploadRequest\x1a\x1a.mod.ConfirmUploadResponse\x12U\n\x12GetModDownloadLink\x12\x1e.mod.GetModDownloadLinkRequest\x1a\x1f.mod.GetModDownloadLinkResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tmod.proto\x12\x03mod\"B\n\x10SetStatusRequest\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\x12\x1e\n\x06status\x18\x02 \x01(\x0e\x32\x0e.mod.ModStatus\"$\n\x11SetStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"_\n\x10\x43reateModRequest\x12\x11\n\tmod_title\x18\x01 \x01(\t\x12\x11\n\tauthor_id\x18\x02 \x01(\x03\x12\x10\n\x08\x66ilename\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"G\n\x11\x43reateModResponse\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\x12\x12\n\nupload_url\x18\x02 \x01(\t\x12\x0e\n\x06s3_key\x18\x03 \x01(\t\"+\n\x19GetModDownloadLinkRequest\x12\x0e\n\x06mod_id\x18\x01 \x01(\x03\".\n\x1aGetModDownloadLinkResponse\x12\x10\n\x08link_url\x18\x01 \x01(\t*n\n\tModStatus\x12\x1a\n\x16MOD_STATUS_UNSPECIFIED\x10\x00\x12\x17\n\x13MOD_STATUS_UPLOADED\x10\x01\x12\x15\n\x11MOD_STATUS_BANNED\x10\x02\x12\x15\n\x11MOD_STATUS_HIDDEN\x10\x03\x32\xdb\x01\n\nModService\x12:\n\tCreateMod\x12\x15.mod.CreateModRequest\x1a\x16.mod.CreateModResponse\x12:\n\tSetStatus\x12\x15.mod.SetStatusRequest\x1a\x16.mod.SetStatusResponse\x12U\n\x12GetModDownloadLink\x12\x1e.mod.GetModDownloadLinkRequest\x1a\x1f.mod.GetModDownloadLinkResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'mod_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_CREATEMODREQUEST']._serialized_start=18
-  _globals['_CREATEMODREQUEST']._serialized_end=113
-  _globals['_CREATEMODRESPONSE']._serialized_start=115
-  _globals['_CREATEMODRESPONSE']._serialized_end=186
-  _globals['_CONFIRMUPLOADREQUEST']._serialized_start=188
-  _globals['_CONFIRMUPLOADREQUEST']._serialized_end=226
-  _globals['_CONFIRMUPLOADRESPONSE']._serialized_start=228
-  _globals['_CONFIRMUPLOADRESPONSE']._serialized_end=268
-  _globals['_GETMODDOWNLOADLINKREQUEST']._serialized_start=270
-  _globals['_GETMODDOWNLOADLINKREQUEST']._serialized_end=313
-  _globals['_GETMODDOWNLOADLINKRESPONSE']._serialized_start=315
-  _globals['_GETMODDOWNLOADLINKRESPONSE']._serialized_end=361
-  _globals['_MODSERVICE']._serialized_start=364
-  _globals['_MODSERVICE']._serialized_end=595
+  _globals['_MODSTATUS']._serialized_start=387
+  _globals['_MODSTATUS']._serialized_end=497
+  _globals['_SETSTATUSREQUEST']._serialized_start=18
+  _globals['_SETSTATUSREQUEST']._serialized_end=84
+  _globals['_SETSTATUSRESPONSE']._serialized_start=86
+  _globals['_SETSTATUSRESPONSE']._serialized_end=122
+  _globals['_CREATEMODREQUEST']._serialized_start=124
+  _globals['_CREATEMODREQUEST']._serialized_end=219
+  _globals['_CREATEMODRESPONSE']._serialized_start=221
+  _globals['_CREATEMODRESPONSE']._serialized_end=292
+  _globals['_GETMODDOWNLOADLINKREQUEST']._serialized_start=294
+  _globals['_GETMODDOWNLOADLINKREQUEST']._serialized_end=337
+  _globals['_GETMODDOWNLOADLINKRESPONSE']._serialized_start=339
+  _globals['_GETMODDOWNLOADLINKRESPONSE']._serialized_end=385
+  _globals['_MODSERVICE']._serialized_start=500
+  _globals['_MODSERVICE']._serialized_end=719
 # @@protoc_insertion_point(module_scope)

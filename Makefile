@@ -1,6 +1,6 @@
 -include .env
 
-PROTO_TAG ?= v0.1.0
+PROTO_TAG ?= v0.1.1
 PROTO_NAME := mod.proto
 
 TMP_DIR := .proto
