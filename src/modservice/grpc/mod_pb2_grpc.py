@@ -39,10 +39,10 @@ class ModServiceStub(object):
                 request_serializer=mod__pb2.CreateModRequest.SerializeToString,
                 response_deserializer=mod__pb2.CreateModResponse.FromString,
                 _registered_method=True)
-        self.ConfirmUpload = channel.unary_unary(
-                '/mod.ModService/ConfirmUpload',
-                request_serializer=mod__pb2.ConfirmUploadRequest.SerializeToString,
-                response_deserializer=mod__pb2.ConfirmUploadResponse.FromString,
+        self.SetStatus = channel.unary_unary(
+                '/mod.ModService/SetStatus',
+                request_serializer=mod__pb2.SetStatusRequest.SerializeToString,
+                response_deserializer=mod__pb2.SetStatusResponse.FromString,
                 _registered_method=True)
         self.GetModDownloadLink = channel.unary_unary(
                 '/mod.ModService/GetModDownloadLink',
@@ -60,7 +60,7 @@ class ModServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ConfirmUpload(self, request, context):
+    def SetStatus(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -80,10 +80,10 @@ def add_ModServiceServicer_to_server(servicer, server):
                     request_deserializer=mod__pb2.CreateModRequest.FromString,
                     response_serializer=mod__pb2.CreateModResponse.SerializeToString,
             ),
-            'ConfirmUpload': grpc.unary_unary_rpc_method_handler(
-                    servicer.ConfirmUpload,
-                    request_deserializer=mod__pb2.ConfirmUploadRequest.FromString,
-                    response_serializer=mod__pb2.ConfirmUploadResponse.SerializeToString,
+            'SetStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetStatus,
+                    request_deserializer=mod__pb2.SetStatusRequest.FromString,
+                    response_serializer=mod__pb2.SetStatusResponse.SerializeToString,
             ),
             'GetModDownloadLink': grpc.unary_unary_rpc_method_handler(
                     servicer.GetModDownloadLink,
@@ -129,7 +129,7 @@ class ModService(object):
             _registered_method=True)
 
     @staticmethod
-    def ConfirmUpload(request,
+    def SetStatus(request,
             target,
             options=(),
             channel_credentials=None,
@@ -142,9 +142,9 @@ class ModService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/mod.ModService/ConfirmUpload',
-            mod__pb2.ConfirmUploadRequest.SerializeToString,
-            mod__pb2.ConfirmUploadResponse.FromString,
+            '/mod.ModService/SetStatus',
+            mod__pb2.SetStatusRequest.SerializeToString,
+            mod__pb2.SetStatusResponse.FromString,
             options,
             channel_credentials,
             insecure,
