@@ -1,7 +1,7 @@
 import grpc
 
 from modservice.grpc import mod_pb2, mod_pb2_grpc
-from modservice.handler.confirm_upload import ConfirmUpload as _confirm_upload
+from modservice.handler.set_status import SetStatus as _set_status
 from modservice.handler.create_mod import CreateMod as _create_mod
 from modservice.handler.get_mod_download_link import (
     GetDownloadLink as _get_mod_download_link,
@@ -32,4 +32,4 @@ class ModHandler(mod_pb2_grpc.ModServiceServicer):
         request: mod_pb2.ConfirmUploadRequest,
         context: grpc.ServicerContext,
     ) -> mod_pb2.ConfirmUploadResponse:
-        return _confirm_upload(self._service, request, context)
+        return _set_status(self._service, request, context)

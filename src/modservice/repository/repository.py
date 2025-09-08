@@ -1,8 +1,6 @@
 from psycopg2.pool import ThreadedConnectionPool
 
-from modservice.repository.confirm_upload import (
-    confirm_upload as _confirm_upload,
-)
+from modservice.repository.set_status import set_status as _set_status
 from modservice.repository.create_mod import create_mod as _create_mod
 from modservice.repository.get_mod_s3_key import (
     get_mod_s3_key as _get_mod_s3_key,
@@ -32,5 +30,5 @@ class ModRepository:
     def get_mod_s3_key(self, mod_id: int) -> str:
         return str(_get_mod_s3_key(self._db_pool, mod_id))
 
-    def confirm_upload(self, mod_id: int) -> bool:
-        return _confirm_upload(self._db_pool, mod_id)
+    def set_status(self, mod_id: int, status: str) -> bool:
+        return _set_status(self._db_pool, mod_id, status)
