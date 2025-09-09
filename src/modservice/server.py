@@ -51,8 +51,6 @@ def serve() -> None:
     server.add_insecure_port(f"{settings.host}:{settings.port}")
     server.start()
     logger.info(f"gRPC server listening on {settings.host}:{settings.port}")
-    logger.info(f"S3 bucket: {settings.s3_bucket_name}")
-    logger.info(f"S3 endpoint: {settings.s3_api_endpoint}")
     server.wait_for_termination()
 
 
