@@ -19,16 +19,31 @@ def serve() -> None:
     settings.configure_logging()
     logger = logging.getLogger(__name__)
 
+    if not settings.database_url:
+        raise ValueError("DATABASE_URL is required")
     db_pool = ThreadedConnectionPool(
         minconn=1, maxconn=10, dsn=settings.database_url
     )
 
+    if not settings.s3_access_key:
+        raise ValueError("S3_ACCESS_KEY is required")
+    if not settings.s3_secret_key:
+        raise ValueError("S3_SECRET_KEY is required")
+    if not settings.s3_api_endpoint:
+        raise ValueError("S3_API_ENDPOINT is required")
+    if not settings.s3_bucket_name:
+        raise ValueError("S3_BUCKET_NAME is required")
+    verify_flag = (
+        bool(settings.s3_ssl_verify)
+        if settings.s3_ssl_verify is not None
+        else True
+    )
     s3_client = S3Client(
         access_key=settings.s3_access_key,
         secret_key=settings.s3_secret_key,
         endpoint_url=settings.s3_api_endpoint,
         bucket_name=settings.s3_bucket_name,
-        verify=settings.s3_ssl_verify,
+        verify=verify_flag,
     )
 
     s3_service = S3Service(s3_client)
