@@ -5,7 +5,13 @@ from modservice.handler.create_mod import CreateMod as _create_mod
 from modservice.handler.get_mod_download_link import (
     GetDownloadLink as _get_mod_download_link,
 )
+<<<<<<< HEAD
 from modservice.handler.get_mods import GetMods as _get_mods
+=======
+
+# TODO: Раскомментировать когда Тимоха добавит GetMods в proto файл
+# from modservice.handler.get_mods import GetMods as _get_mods
+>>>>>>> bb6b9b7 (GetMods (без хендлера и пары потенциально нужных строчек в БД, жду Тимоху), убрал ругань на whitespace, чёт он на SQL запрос триггерится с ним)
 from modservice.handler.set_status import SetStatus as _set_status
 from modservice.service.service import ModService
 
