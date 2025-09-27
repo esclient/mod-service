@@ -5,6 +5,9 @@ from modservice.handler.create_mod import CreateMod as _create_mod
 from modservice.handler.get_mod_download_link import (
     GetDownloadLink as _get_mod_download_link,
 )
+
+# TODO: Раскомментировать когда Тимоха добавит GetMods в proto файл
+# from modservice.handler.get_mods import GetMods as _get_mods
 from modservice.handler.set_status import SetStatus as _set_status
 from modservice.service.service import ModService
 
@@ -33,3 +36,11 @@ class ModHandler(mod_pb2_grpc.ModServiceServicer):
         context: grpc.ServicerContext,
     ) -> mod_pb2.SetStatusResponse:
         return _set_status(self._service, request, context)
+
+    # TODO: Раскомментировать когда Тимоха добавит GetMods в proto файл
+    # def GetMods(
+    #     self,
+    #     request: mod_pb2.GetModsRequest,
+    #     context: grpc.ServicerContext,
+    # ) -> mod_pb2.GetModsResponse:
+    #     return _get_mods(self._service, request, context)

@@ -2,6 +2,7 @@ from typing import Any
 
 from modservice.repository.repository import ModRepository
 from modservice.service.create_mod import create_mod as _create_mod
+from modservice.service.get_mods import get_mods as _get_mods
 from modservice.service.s3_service import S3Service
 from modservice.service.set_status import set_status as _set_status
 
@@ -70,3 +71,8 @@ class ModService:
 
     def set_status(self, mod_id: int, status: str) -> bool:
         return _set_status(self._repo, mod_id, status)
+
+    def get_mods(
+        self,
+    ) -> list[dict[str, Any]]:
+        return _get_mods(self._repo)
