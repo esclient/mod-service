@@ -28,16 +28,16 @@ class TestModService:
     ) -> None:
         author_id = 123
         filename = "test_mod.zip"
-        mod_title = "Test Mod"
+        title = "Test Mod"
         expected_key = "mods/123/20231201_120000_Test_Mod.zip"
 
         mock_s3_service.generate_s3_key.return_value = expected_key
 
-        result = mod_service.generate_s3_key(author_id, filename, mod_title)
+        result = mod_service.generate_s3_key(author_id, filename, title)
 
         assert result == expected_key
         mock_s3_service.generate_s3_key.assert_called_once_with(
-            author_id, filename, mod_title
+            author_id, filename, title
         )
 
     def test_generate_upload_url(
@@ -45,7 +45,7 @@ class TestModService:
     ) -> None:
         author_id = 456
         filename = "awesome_mod.rar"
-        mod_title = "Awesome Mod"
+        title = "Awesome Mod"
         expiration = 7200
         content_type = "application/x-rar-compressed"
 
@@ -58,14 +58,14 @@ class TestModService:
         )
 
         s3_key, presigned_url = mod_service.generate_upload_url(
-            author_id, filename, mod_title, expiration, content_type
+            author_id, filename, title, expiration, content_type
         )
 
         assert s3_key == expected_s3_key
         assert presigned_url == expected_url
 
         mock_s3_service.generate_upload_url.assert_called_once_with(
-            author_id, filename, mod_title, expiration, content_type
+            author_id, filename, title, expiration, content_type
         )
 
     def test_get_file_info_from_s3_key(
@@ -91,7 +91,7 @@ class TestModService:
     def test_create_mod_delegates_to_repository(
         self, mod_service: ModService
     ) -> None:
-        mod_title = "Test Mod"
+        title = "Test Mod"
         author_id = 123
         description = "Test description"
 
@@ -109,6 +109,6 @@ class TestModService:
                 mock_create_mod,
             )
 
-            result = mod_service.create_mod(mod_title, author_id, description)
+            result = mod_service.create_mod(title, author_id, description)
 
             assert result == expected_result

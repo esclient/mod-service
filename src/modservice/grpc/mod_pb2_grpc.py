@@ -49,6 +49,11 @@ class ModServiceStub(object):
                 request_serializer=mod__pb2.GetModDownloadLinkRequest.SerializeToString,
                 response_deserializer=mod__pb2.GetModDownloadLinkResponse.FromString,
                 _registered_method=True)
+        self.GetMods = channel.unary_unary(
+                '/mod.ModService/GetMods',
+                request_serializer=mod__pb2.GetModsRequest.SerializeToString,
+                response_deserializer=mod__pb2.GetModsResponse.FromString,
+                _registered_method=True)
 
 
 class ModServiceServicer(object):
@@ -72,6 +77,12 @@ class ModServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetMods(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ModServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -89,6 +100,11 @@ def add_ModServiceServicer_to_server(servicer, server):
                     servicer.GetModDownloadLink,
                     request_deserializer=mod__pb2.GetModDownloadLinkRequest.FromString,
                     response_serializer=mod__pb2.GetModDownloadLinkResponse.SerializeToString,
+            ),
+            'GetMods': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMods,
+                    request_deserializer=mod__pb2.GetModsRequest.FromString,
+                    response_serializer=mod__pb2.GetModsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -172,6 +188,33 @@ class ModService(object):
             '/mod.ModService/GetModDownloadLink',
             mod__pb2.GetModDownloadLinkRequest.SerializeToString,
             mod__pb2.GetModDownloadLinkResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMods(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/mod.ModService/GetMods',
+            mod__pb2.GetModsRequest.SerializeToString,
+            mod__pb2.GetModsResponse.FromString,
             options,
             channel_credentials,
             insecure,

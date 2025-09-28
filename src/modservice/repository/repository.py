@@ -17,11 +17,11 @@ class ModRepository:
 
     def create_mod(
         self,
-        mod_title: str,
+        title: str,
         author_id: int,
         description: str,
     ) -> int:
-        return _create_mod(self._db_pool, mod_title, author_id, description)
+        return _create_mod(self._db_pool, title, author_id, description)
 
     def insert_s3_key(
         self,

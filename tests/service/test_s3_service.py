@@ -32,15 +32,13 @@ class TestS3Service:
         assert s3_key.endswith("_test_mod.zip")
         assert "_" in s3_key  # Должен содержать timestamp
 
-    def test_generate_s3_key_with_mod_title(
-        self, s3_service: S3Service
-    ) -> None:
+    def test_generate_s3_key_with_title(self, s3_service: S3Service) -> None:
         """Тест генерации S3 ключа с заголовком мода"""
         author_id = 456
         filename = "awesome_mod.rar"
-        mod_title = "Awesome Mod v2.0"
+        title = "Awesome Mod v2.0"
 
-        s3_key = s3_service.generate_s3_key(author_id, filename, mod_title)
+        s3_key = s3_service.generate_s3_key(author_id, filename, title)
 
         assert s3_key.startswith(f"{author_id}/")
         assert s3_key.endswith("_Awesome_Mod_v2.0.rar")
@@ -52,9 +50,9 @@ class TestS3Service:
         """Тест очистки специальных символов в S3 ключе"""
         author_id = 789
         filename = "test@mod#.zip"
-        mod_title = "Test@Mod# v1.0!"
+        title = "Test@Mod# v1.0!"
 
-        s3_key = s3_service.generate_s3_key(author_id, filename, mod_title)
+        s3_key = s3_service.generate_s3_key(author_id, filename, title)
 
         assert s3_key.startswith(f"{author_id}/")
         assert s3_key.endswith("_TestMod_v1.0.zip")
@@ -82,7 +80,7 @@ class TestS3Service:
         """Тест генерации URL для загрузки с автогенерацией ключа"""
         author_id = 123
         filename = "test_mod.zip"
-        mod_title = "Test Mod"
+        title = "Test Mod"
         expiration = 7200
         content_type = "application/zip"
 
@@ -92,7 +90,7 @@ class TestS3Service:
         )
 
         s3_key, presigned_url = s3_service.generate_upload_url(
-            author_id, filename, mod_title, expiration, content_type
+            author_id, filename, title, expiration, content_type
         )
 
         assert s3_key.startswith(f"{author_id}/")

@@ -9,7 +9,7 @@ def get_mods(
     conn = db_pool.getconn()
     try:
         with conn.cursor() as cursor:
-            # TODO: Когда добавятся поля в БД, добавить:
+            # NOTE: Поля для будущего добавления в БД:
             # - avatar_url
             # - download_count
             # - rating

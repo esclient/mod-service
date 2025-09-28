@@ -11,7 +11,7 @@ def CreateMod(
 ) -> mod_pb2.CreateModResponse:
     # Создаем мод
     mod_id, s3_key, upload_url = service.create_mod(
-        request.mod_title,
+        request.title,
         request.author_id,
         request.description,
     )
