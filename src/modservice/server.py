@@ -15,27 +15,20 @@ from modservice.settings import Settings
 
 
 def serve() -> None:
-    settings = Settings()
+    settings = Settings.load()
     settings.configure_logging()
     logger = logging.getLogger(__name__)
 
-    if not settings.database_url:
-        raise ValueError("DATABASE_URL is required")
     db_pool = ThreadedConnectionPool(
         minconn=1, maxconn=10, dsn=settings.database_url
     )
 
-    verify_flag = (
-        bool(settings.s3_ssl_verify)
-        if settings.s3_ssl_verify is not None
-        else True
-    )
     s3_client = S3Client(
         access_key=settings.s3_access_key,
         secret_key=settings.s3_secret_key,
         endpoint_url=settings.s3_api_endpoint,
         bucket_name=settings.s3_bucket_name,
-        verify=verify_flag,
+        verify=settings.s3_verify,
     )
 
     s3_service = S3Service(s3_client)
