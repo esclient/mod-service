@@ -6,7 +6,7 @@ from modservice.service.service import ModService
 
 def GetMods(
     service: ModService,
-    request: mod_pb2.GetModsRequest,
+    request: mod_pb2.GetModsRequest,  # noqa: ARG001
     context: grpc.ServicerContext,  # noqa: ARG001
 ) -> mod_pb2.GetModsResponse:
     mods_data = service.get_mods()
