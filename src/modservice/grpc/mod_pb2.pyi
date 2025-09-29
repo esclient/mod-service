@@ -1,6 +1,11 @@
+import datetime
+
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
 from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
@@ -15,6 +20,34 @@ MOD_STATUS_UNSPECIFIED: ModStatus
 MOD_STATUS_UPLOADED: ModStatus
 MOD_STATUS_BANNED: ModStatus
 MOD_STATUS_HIDDEN: ModStatus
+
+class GetModsRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class GetModsResponse(_message.Message):
+    __slots__ = ("mods",)
+    MODS_FIELD_NUMBER: _ClassVar[int]
+    mods: _containers.RepeatedCompositeFieldContainer[Mod]
+    def __init__(self, mods: _Optional[_Iterable[_Union[Mod, _Mapping]]] = ...) -> None: ...
+
+class Mod(_message.Message):
+    __slots__ = ("id", "author_id", "title", "description", "version", "status", "created_at")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    AUTHOR_ID_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
+    VERSION_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    CREATED_AT_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    author_id: int
+    title: str
+    description: str
+    version: int
+    status: ModStatus
+    created_at: _timestamp_pb2.Timestamp
+    def __init__(self, id: _Optional[int] = ..., author_id: _Optional[int] = ..., title: _Optional[str] = ..., description: _Optional[str] = ..., version: _Optional[int] = ..., status: _Optional[_Union[ModStatus, str]] = ..., created_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
 
 class SetStatusRequest(_message.Message):
     __slots__ = ("mod_id", "status")
@@ -31,16 +64,16 @@ class SetStatusResponse(_message.Message):
     def __init__(self, success: bool = ...) -> None: ...
 
 class CreateModRequest(_message.Message):
-    __slots__ = ("mod_title", "author_id", "filename", "description")
-    MOD_TITLE_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("title", "author_id", "filename", "description")
+    TITLE_FIELD_NUMBER: _ClassVar[int]
     AUTHOR_ID_FIELD_NUMBER: _ClassVar[int]
     FILENAME_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-    mod_title: str
+    title: str
     author_id: int
     filename: str
     description: str
-    def __init__(self, mod_title: _Optional[str] = ..., author_id: _Optional[int] = ..., filename: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
+    def __init__(self, title: _Optional[str] = ..., author_id: _Optional[int] = ..., filename: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
 
 class CreateModResponse(_message.Message):
     __slots__ = ("mod_id", "upload_url", "s3_key")

@@ -14,14 +14,14 @@ class S3Service:
         self._s3_client = s3_client
 
     def generate_s3_key(
-        self, author_id: int, filename: str, mod_title: str | None = None
+        self, author_id: int, filename: str, title: str | None = None
     ) -> str:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         safe_filename = self._sanitize_filename(filename)
 
-        if mod_title:
-            safe_title = self._sanitize_title(mod_title)
+        if title:
+            safe_title = self._sanitize_title(title)
             file_ext = os.path.splitext(safe_filename)[1]
             safe_filename = safe_title + file_ext
 
@@ -85,7 +85,7 @@ class S3Service:
         self,
         author_id: int,
         filename: str,
-        mod_title: str | None = None,
+        title: str | None = None,
         expiration: int = 3600,
         content_type: str | None = None,
     ) -> tuple[str, str]:
@@ -93,7 +93,7 @@ class S3Service:
             f"Генерируем Presigned PUT URL для автора {author_id}, файл: {filename}"
         )
 
-        s3_key = self.generate_s3_key(author_id, filename, mod_title)
+        s3_key = self.generate_s3_key(author_id, filename, title)
 
         if content_type is None:
             content_type = self._detect_content_type(filename)

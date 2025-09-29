@@ -3,7 +3,7 @@ set dotenv-load := true
 
 COMMON_URL := 'https://raw.githubusercontent.com/esclient/tools/refs/heads/main/python/common.just'
 
-PROTO_TAG := 'v0.1.1'
+PROTO_TAG := 'v0.1.2'
 PROTO_NAME := 'mod.proto'
 TMP_DIR := '.proto'
 OUT_DIR := 'src/modservice/grpc'

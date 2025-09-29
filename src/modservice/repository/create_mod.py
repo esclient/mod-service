@@ -3,7 +3,7 @@ from psycopg2.pool import ThreadedConnectionPool
 
 def create_mod(
     db_pool: ThreadedConnectionPool,
-    mod_title: str,  # noqa: ARG001
+    title: str,  # noqa: ARG001
     author_id: int,  # noqa: ARG001
     description: str,  # noqa: ARG001
 ) -> int:
@@ -18,7 +18,7 @@ def create_mod(
                 """,
                 (
                     author_id,
-                    mod_title,
+                    title,
                     description,
                     1,
                 ),
