@@ -7,8 +7,13 @@ on:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   lint-and-test:
     uses: esclient/tools/.github/workflows/lint-and-test-python.yml@main
     with:
       python-version: '3.10.4'
+    secrets: inherit
