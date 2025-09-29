@@ -17,7 +17,7 @@ def get_mods(
             # - updated_at
             cursor.execute(
                 """
-                SELECT 
+                SELECT
                     id,
                     author_id,
                     title,
