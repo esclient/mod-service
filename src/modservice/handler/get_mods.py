@@ -20,9 +20,9 @@ def GetMods(
             description=mod_data["description"],
             version=mod_data["version"],
             status=mod_data["status"],
-            created_at=mod_data["created_at"]
-            if mod_data.get("created_at")
-            else None,
+            created_at=(
+                mod_data["created_at"] if mod_data.get("created_at") else None
+            ),
             # TODO: Раскомментировать когда добавятся в БД и proto:
             # avatar_url=mod_data.get("avatar_url", ""),
             # download_count=mod_data.get("download_count", 0),
