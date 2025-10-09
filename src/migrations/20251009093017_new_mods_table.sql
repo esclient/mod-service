@@ -1,10 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-DO $$ BEGIN
-    CREATE TYPE mod_status AS ENUM ('UPLOADING', 'UPLOADED', 'FAILED', 'HIDDEN', 'BANNED');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+CREATE TYPE mod_status AS ENUM ('UPLOADING', 'UPLOADED', 'FAILED', 'HIDDEN', 'BANNED');
 
 CREATE TABLE IF NOT EXISTS mods (
     id SERIAL PRIMARY KEY,
