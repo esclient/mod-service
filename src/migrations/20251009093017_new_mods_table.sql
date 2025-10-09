@@ -1,5 +1,4 @@
 -- +goose Up
--- +goose StatementBegin
 CREATE TYPE mod_status AS ENUM ('UPLOADING', 'UPLOADED', 'FAILED', 'HIDDEN', 'BANNED');
 
 CREATE TABLE IF NOT EXISTS mods (
@@ -12,10 +11,7 @@ CREATE TABLE IF NOT EXISTS mods (
     status mod_status NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
--- +goose StatementEnd
 
 -- +goose Down
--- +goose StatementBegin
 DROP TABLE IF EXISTS mods;
 DROP TYPE IF EXISTS mod_status;
--- +goose StatementEnd
