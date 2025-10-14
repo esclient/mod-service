@@ -9,7 +9,6 @@ def CreateMod(
     request: mod_pb2.CreateModRequest,
     context: grpc.ServicerContext,  # noqa: ARG001
 ) -> mod_pb2.CreateModResponse:
-    # Создаем мод
     mod_id, s3_key, upload_url = service.create_mod(
         request.title,
         request.author_id,

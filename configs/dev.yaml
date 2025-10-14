@@ -1,0 +1,13 @@
+DATABASE_URL: "postgresql://esclient_devmods:XKP$GP2RAJXDVFeR@pg4.sweb.ru:5433/esclient_devmods"
+HOST: "0.0.0.0"
+PORT: "7004"
+
+LOG_LEVEL: "INFO"
+LOG_FORMAT: "%(asctime)s %(levelname)-8s [%(name)s] %(message)s"
+LOG_DATEFMT: "%Y-%m-%d %H:%M:%S"
+
+S3_API_ENDPOINT: "https://s3.esclient.ru"
+S3_ACCESS_KEY: "dev-access"
+S3_SECRET_KEY: "5ece9238b18dc29d5e0724b3ae577cdf90b8f78b5eaf62ca"
+S3_BUCKET_NAME: "dev"
+S3_VERIFY: "true"

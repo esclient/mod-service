@@ -15,7 +15,7 @@ from modservice.settings import Settings
 
 
 def serve() -> None:
-    settings = Settings.load()
+    settings = Settings()
     settings.configure_logging()
     logger = logging.getLogger(__name__)
 

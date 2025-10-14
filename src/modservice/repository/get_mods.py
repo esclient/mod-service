@@ -12,7 +12,6 @@ def get_mods(
             # NOTE: Поля для будущего добавления в БД:
             # - avatar_url
             # - download_count
-            # - rating
             # - tags
             # - updated_at
             cursor.execute(

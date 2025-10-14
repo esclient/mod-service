@@ -1,7 +1,14 @@
 import grpc
 
+from modservice.constants import STATUS_BANNED, STATUS_HIDDEN, STATUS_UPLOADED
 from modservice.grpc import mod_pb2
 from modservice.service.service import ModService
+
+STATUS_TO_PROTO: dict[str, mod_pb2.ModStatus] = {
+    STATUS_UPLOADED: mod_pb2.ModStatus.MOD_STATUS_UPLOADED,
+    STATUS_BANNED: mod_pb2.ModStatus.MOD_STATUS_BANNED,
+    STATUS_HIDDEN: mod_pb2.ModStatus.MOD_STATUS_HIDDEN,
+}
 
 
 def GetMods(
@@ -19,14 +26,12 @@ def GetMods(
             title=mod_data["title"],
             description=mod_data["description"],
             version=mod_data["version"],
-            status=mod_data["status"],
+            status=STATUS_TO_PROTO[mod_data["status"]],
             created_at=(
                 mod_data["created_at"] if mod_data.get("created_at") else None
             ),
-            # TODO: Раскомментировать когда добавятся в БД и proto:
             # avatar_url=mod_data.get("avatar_url", ""),
             # download_count=mod_data.get("download_count", 0),
-            # rating=mod_data.get("rating", 0.0),
             # tags=mod_data.get("tags", []),
             # updated_at=mod_data["updated_at"] if mod_data.get("updated_at") else None,
         )
