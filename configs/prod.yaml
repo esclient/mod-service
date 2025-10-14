@@ -1,0 +1,13 @@
+DATABASE_URL: "{vault:mod-service/prod#database_url}"
+HOST: "{vault:mod-service/prod#host}"
+PORT: "{vault:mod-service/prod#port}"
+
+LOG_LEVEL: "WARN"
+LOG_FORMAT: "%(asctime)s %(levelname)-8s [%(name)s] %(message)s"
+LOG_DATEFMT: "%Y-%m-%d %H:%M:%S"
+
+S3_API_ENDPOINT: "https://s3.esclient.ru"
+S3_ACCESS_KEY: "{vault:mod-service/prod#s3_access_key}"
+S3_SECRET_KEY: "{vault:mod-service/prod#s3_secret_key}"
+S3_BUCKET_NAME: "prod"
+S3_VERIFY: "true"

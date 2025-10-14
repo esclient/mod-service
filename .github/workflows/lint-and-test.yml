@@ -13,7 +13,8 @@ permissions:
 
 jobs:
   lint-and-test:
-    uses: esclient/tools/.github/workflows/lint-and-test-python.yml@main
+    uses: esclient/tools/.github/workflows/lint-and-test-python.yml@v1.0.4
     with:
       python-version: '3.13.7'
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

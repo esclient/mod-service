@@ -1,17 +1,25 @@
 FROM python:3.13-slim
 
-RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget curl jq && \
+    wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    chmod +x /usr/local/bin/yq && \
+    apt-get remove -y wget && apt-get autoremove -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir pdm
-
 COPY pyproject.toml pdm.lock ./
-RUN pdm export --group dev --without-hashes -f requirements > /tmp/req.text \
-    && pip install --no-cache-dir -r /tmp/req.text \
-    && rm /tmp/req.text
+RUN pip install --no-cache-dir pdm && \
+    pdm export --without-hashes -f requirements > /tmp/req.txt && \
+    pip install --no-cache-dir -r /tmp/req.txt && \
+    pip uninstall -y pdm && \
+    rm /tmp/req.txt
 
 COPY . .
 RUN pip install --no-cache-dir -e .
+RUN chmod +x tools/load_envs.sh
 
-CMD ["watchfiles", "run-server"]
+ENV ENV=prod
+ENV PYTHONPATH=src
+
+CMD ["./tools/load_envs.sh", "watchfiles", "run-server"]
