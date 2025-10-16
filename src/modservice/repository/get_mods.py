@@ -1,51 +1,45 @@
 from typing import Any
 
-from psycopg2.pool import ThreadedConnectionPool
+from asyncpg import Pool  # type: ignore[import-untyped]
 
 
-def get_mods(
-    db_pool: ThreadedConnectionPool,
+async def get_mods(
+    db_pool: Pool,
 ) -> list[dict[str, Any]]:
-    conn = db_pool.getconn()
-    try:
-        with conn.cursor() as cursor:
-            # NOTE: Поля для будущего добавления в БД:
-            # - avatar_url
-            # - download_count
-            # - tags
-            # - updated_at
-            cursor.execute(
-                """
-                SELECT
-                    id,
-                    author_id,
-                    title,
-                    description,
-                    version,
-                    s3_key,
-                    status,
-                    created_at
-                FROM mods
-                ORDER BY created_at DESC
-                """
-            )
+    async with db_pool.acquire() as conn:
+        # NOTE: Поля для будущего добавления в БД:
+        # - avatar_url
+        # - download_count
+        # - tags
+        # - updated_at
+        results = await conn.fetch(
+            """
+            SELECT
+                id,
+                author_id,
+                title,
+                description,
+                version,
+                s3_key,
+                status,
+                created_at
+            FROM mods
+            ORDER BY created_at DESC
+            """
+        )
 
-            results = cursor.fetchall()
+        mods = []
+        for row in results:
+            mod = {
+                "id": row["id"],
+                "author_id": row["author_id"],
+                "title": row["title"],
+                "description": row["description"],
+                "version": row["version"],
+                "s3_key": row["s3_key"],
+                "status": row["status"],
+                "created_at": row["created_at"],
+            }
+            mods.append(mod)
 
-            mods = []
-            for row in results:
-                mod = {
-                    "id": row[0],
-                    "author_id": row[1],
-                    "title": row[2],
-                    "description": row[3],
-                    "version": row[4],
-                    "s3_key": row[5],
-                    "status": row[6],
-                    "created_at": row[7],
-                }
-                mods.append(mod)
-
-            return mods
-    finally:
-        db_pool.putconn(conn)
+        return mods

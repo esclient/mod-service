@@ -1,27 +1,19 @@
-from typing import cast
-
-from psycopg2.pool import ThreadedConnectionPool
+from asyncpg import Pool  # type: ignore[import-untyped]
 
 
-def set_status(
-    db_pool: ThreadedConnectionPool, mod_id: int, status: str
-) -> bool:
-    conn = db_pool.getconn()
+async def set_status(db_pool: Pool, mod_id: int, status: str) -> bool:
     try:
-        with conn.cursor() as cursor:
-            cursor.execute(
+        async with db_pool.acquire() as conn:
+            result = await conn.execute(
                 """
                 UPDATE mods
-                SET status = %s
-                WHERE id = %s
+                SET status = $1
+                WHERE id = $2
                 """,
-                [status, mod_id],
+                status,
+                mod_id,
             )
-            rows_affected: int = cast(int, cursor.rowcount)
-            conn.commit()
+            rows_affected = int(result.split()[-1]) if result else 0
             return rows_affected > 0
     except Exception:
-        conn.rollback()
         return False
-    finally:
-        db_pool.putconn(conn)

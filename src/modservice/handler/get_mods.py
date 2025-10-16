@@ -11,12 +11,12 @@ STATUS_TO_PROTO: dict[str, mod_pb2.ModStatus] = {
 }
 
 
-def GetMods(
+async def GetMods(
     service: ModService,
     request: mod_pb2.GetModsRequest,  # noqa: ARG001
     context: grpc.ServicerContext,  # noqa: ARG001
 ) -> mod_pb2.GetModsResponse:
-    mods_data = service.get_mods()
+    mods_data = await service.get_mods()
 
     mods = []
     for mod_data in mods_data:

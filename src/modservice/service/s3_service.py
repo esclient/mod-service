@@ -49,7 +49,7 @@ class S3Service:
         content_type, _ = mimetypes.guess_type(filename)
         return content_type
 
-    def generate_mod_upload_url(
+    async def generate_mod_upload_url(
         self,
         s3_key_prefix: str,
         expiration: int = 3600,
@@ -58,7 +58,7 @@ class S3Service:
 
         content_type = "application/zip"
 
-        presigned_url = self._s3_client.generate_presigned_put_url(
+        presigned_url = await self._s3_client.generate_presigned_put_url(
             s3_key=full_s3_key,
             expiration=expiration,
             content_type=content_type,
@@ -67,21 +67,21 @@ class S3Service:
         logger.info(f"Presigned PUT URL MOD сгенерирован для {full_s3_key}")
         return presigned_url
 
-    def generate_mod_download_url(
+    async def generate_mod_download_url(
         self,
         s3_key_prefix: str,
         expiration: int = 3600,
     ) -> str:
         full_s3_key = f"{s3_key_prefix}/mod.zip"
 
-        presigned_url = self._s3_client.generate_presigned_get_url(
+        presigned_url = await self._s3_client.generate_presigned_get_url(
             s3_key=full_s3_key, expiration=expiration
         )
 
         logger.info(f"Presigned GET URL MOD сгенерирован для {full_s3_key}")
         return presigned_url
 
-    def generate_upload_url(
+    async def generate_upload_url(
         self,
         author_id: int,
         filename: str,
@@ -98,14 +98,14 @@ class S3Service:
         if content_type is None:
             content_type = self._detect_content_type(filename)
 
-        presigned_url = self._s3_client.generate_presigned_put_url(
+        presigned_url = await self._s3_client.generate_presigned_put_url(
             s3_key=s3_key, expiration=expiration, content_type=content_type
         )
 
         logger.info(f"Presigned PUT URL успешно сгенерирован для {s3_key}")
         return s3_key, presigned_url
 
-    def generate_upload_url_for_key(
+    async def generate_upload_url_for_key(
         self,
         s3_key: str,
         expiration: int = 3600,
@@ -115,35 +115,35 @@ class S3Service:
             f"Генерируем Presigned PUT URL для существующего s3_key: {s3_key}"
         )
 
-        presigned_url = self._s3_client.generate_presigned_put_url(
+        presigned_url = await self._s3_client.generate_presigned_put_url(
             s3_key=s3_key, expiration=expiration, content_type=content_type
         )
 
         logger.info(f"Presigned PUT URL успешно сгенерирован для {s3_key}")
         return presigned_url
 
-    def generate_download_url(
+    async def generate_download_url(
         self,
         s3_key: str,
         expiration: int = 3600,
     ) -> str:
         logger.info(f"Генерируем Presigned GET URL для s3_key: {s3_key}")
 
-        presigned_url = self._s3_client.generate_presigned_get_url(
+        presigned_url = await self._s3_client.generate_presigned_get_url(
             s3_key=s3_key, expiration=expiration
         )
 
         logger.info(f"Presigned GET URL успешно сгенерирован для {s3_key}")
         return presigned_url
 
-    def upload_file(
+    async def upload_file(
         self,
         file_path: str,
         s3_key: str,
     ) -> bool:
         logger.info(f"Загружаем файл {file_path} с ключом {s3_key}")
 
-        success = self._s3_client.upload_file(file_path, s3_key)
+        success = await self._s3_client.upload_file(file_path, s3_key)
 
         if success:
             logger.info(f"Файл успешно загружен: {s3_key}")
@@ -152,14 +152,14 @@ class S3Service:
 
         return success
 
-    def download_file(
+    async def download_file(
         self,
         s3_key: str,
         local_path: str,
     ) -> bool:
         logger.info(f"Скачиваем файл {s3_key} в {local_path}")
 
-        success = self._s3_client.download_file(s3_key, local_path)
+        success = await self._s3_client.download_file(s3_key, local_path)
 
         if success:
             logger.info(f"Файл успешно скачан: {local_path}")
@@ -168,10 +168,10 @@ class S3Service:
 
         return success
 
-    def list_files(self, prefix: str = "") -> list[dict[str, Any]]:
+    async def list_files(self, prefix: str = "") -> list[dict[str, Any]]:
         logger.info(f"Получаем список файлов с префиксом: '{prefix}'")
 
-        files = self._s3_client.list_objects(prefix)
+        files = await self._s3_client.list_objects(prefix)
 
         logger.info(f"Найдено {len(files)} файлов")
         return files

@@ -1,9 +1,10 @@
+import asyncio
 import logging
 from concurrent import futures
 
+import asyncpg
 import grpc
 from grpc_reflection.v1alpha import reflection
-from psycopg2.pool import ThreadedConnectionPool
 
 from modservice.grpc import mod_pb2, mod_pb2_grpc
 from modservice.handler.handler import ModHandler
@@ -14,13 +15,15 @@ from modservice.service.service import ModService
 from modservice.settings import Settings
 
 
-def serve() -> None:
+async def serve() -> None:
     settings = Settings()
     settings.configure_logging()
     logger = logging.getLogger(__name__)
 
-    db_pool = ThreadedConnectionPool(
-        minconn=1, maxconn=10, dsn=settings.database_url
+    db_pool = await asyncpg.create_pool(
+        dsn=settings.database_url,
+        min_size=1,
+        max_size=10,
     )
 
     s3_client = S3Client(
@@ -37,7 +40,7 @@ def serve() -> None:
     service = ModService(repo, s3_service)
     handler = ModHandler(service)
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
+    server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=5))
     mod_pb2_grpc.add_ModServiceServicer_to_server(
         handler, server
     )  # type: ignore[no-untyped-call]
@@ -49,10 +52,14 @@ def serve() -> None:
     reflection.enable_server_reflection(SERVICE_NAMES, server)
 
     server.add_insecure_port(f"{settings.host}:{settings.port}")
-    server.start()
+    await server.start()
     logger.info(f"gRPC server listening on {settings.host}:{settings.port}")
-    server.wait_for_termination()
+    await server.wait_for_termination()
+
+
+def main() -> None:
+    asyncio.run(serve())
 
 
 if __name__ == "__main__":
-    serve()
+    main()
