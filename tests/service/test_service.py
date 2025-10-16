@@ -23,7 +23,7 @@ class TestModService:
     ) -> ModService:
         return ModService(mock_repo, mock_s3_service)
 
-    def test_generate_s3_key(
+    async def test_generate_s3_key(
         self, mod_service: ModService, mock_s3_service: MagicMock
     ) -> None:
         author_id = 123
@@ -33,14 +33,14 @@ class TestModService:
 
         mock_s3_service.generate_s3_key.return_value = expected_key
 
-        result = mod_service.generate_s3_key(author_id, filename, title)
+        result = await mod_service.generate_s3_key(author_id, filename, title)
 
         assert result == expected_key
         mock_s3_service.generate_s3_key.assert_called_once_with(
             author_id, filename, title
         )
 
-    def test_generate_upload_url(
+    async def test_generate_upload_url(
         self, mod_service: ModService, mock_s3_service: MagicMock
     ) -> None:
         author_id = 456
@@ -57,7 +57,7 @@ class TestModService:
             expected_url,
         )
 
-        s3_key, presigned_url = mod_service.generate_upload_url(
+        s3_key, presigned_url = await mod_service.generate_upload_url(
             author_id, filename, title, expiration, content_type
         )
 
@@ -68,7 +68,7 @@ class TestModService:
             author_id, filename, title, expiration, content_type
         )
 
-    def test_get_file_info_from_s3_key(
+    async def test_get_file_info_from_s3_key(
         self, mod_service: ModService, mock_s3_service: MagicMock
     ) -> None:
         s3_key = "mods/789/20231201_140000_Test_File.zip"
@@ -81,14 +81,14 @@ class TestModService:
 
         mock_s3_service.get_file_info_from_s3_key.return_value = expected_info
 
-        result = mod_service.get_file_info_from_s3_key(s3_key)
+        result = await mod_service.get_file_info_from_s3_key(s3_key)
 
         assert result == expected_info
         mock_s3_service.get_file_info_from_s3_key.assert_called_once_with(
             s3_key
         )
 
-    def test_create_mod_delegates_to_repository(
+    async def test_create_mod_delegates_to_repository(
         self, mod_service: ModService
     ) -> None:
         title = "Test Mod"
@@ -109,6 +109,8 @@ class TestModService:
                 mock_create_mod,
             )
 
-            result = mod_service.create_mod(title, author_id, description)
+            result = await mod_service.create_mod(
+                title, author_id, description
+            )
 
             assert result == expected_result

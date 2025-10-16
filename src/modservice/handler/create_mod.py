@@ -4,12 +4,12 @@ from modservice.grpc import mod_pb2
 from modservice.service.service import ModService
 
 
-def CreateMod(
+async def CreateMod(
     service: ModService,
     request: mod_pb2.CreateModRequest,
     context: grpc.ServicerContext,  # noqa: ARG001
 ) -> mod_pb2.CreateModResponse:
-    mod_id, s3_key, upload_url = service.create_mod(
+    mod_id, s3_key, upload_url = await service.create_mod(
         request.title,
         request.author_id,
         request.description,

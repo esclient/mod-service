@@ -17,14 +17,14 @@ def _convert_enum_to_status(status_value: int) -> str:
     return _ENUM_TO_DB_STATUS_BY_VALUE[status_value]
 
 
-def SetStatus(
+async def SetStatus(
     service: ModService,
     request: mod_pb2.SetStatusRequest,
     context: grpc.ServicerContext,  # noqa: ARG001
 ) -> mod_pb2.SetStatusResponse:
     try:
         status_str = _convert_enum_to_status(request.status)
-        success = service.set_status(request.mod_id, status_str)
+        success = await service.set_status(request.mod_id, status_str)
         return mod_pb2.SetStatusResponse(success=success)
     except ValueError as e:
         context.set_code(grpc.StatusCode.INVALID_ARGUMENT)

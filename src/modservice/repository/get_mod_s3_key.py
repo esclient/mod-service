@@ -1,20 +1,15 @@
-from psycopg2.pool import ThreadedConnectionPool
+from asyncpg import Pool  # type: ignore[import-untyped]
 
 
-def get_mod_s3_key(db_pool: ThreadedConnectionPool, id: int) -> int:
-    conn = db_pool.getconn()
-    try:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT s3_key
-                FROM mods
-                WHERE id = %s
-                AND status = 'UPLOADED';
-                """,
-                [id],
-            )
-            result = cursor.fetchone()
-            return result[0] if result else 0
-    finally:
-        db_pool.putconn(conn)
+async def get_mod_s3_key(db_pool: Pool, id: int) -> int:
+    async with db_pool.acquire() as conn:
+        s3_key = await conn.fetchval(
+            """
+            SELECT s3_key
+            FROM mods
+            WHERE id = $1
+            AND status = 'UPLOADED';
+            """,
+            id,
+        )
+        return s3_key if s3_key else 0

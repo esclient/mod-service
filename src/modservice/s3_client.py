@@ -1,9 +1,8 @@
 import logging
-import os
 from typing import Any
 
-import botocore.session  # type: ignore[import-untyped]
-from botocore.client import Config  # type: ignore[import-untyped]
+import aioboto3
+from botocore.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +22,13 @@ class S3Client:
         self.bucket_name = bucket_name
         self.ssl_verify = verify
 
-        self.session = botocore.session.get_session()
-
         self.config = Config(
             signature_version="s3v4",
             s3={"addressing_style": "virtual"},
             region_name="ru-central-1",
         )
+
+        self.session = aioboto3.Session()
 
         logger.info(f"Инициализирован S3Client для бакета: {self.bucket_name}")
         logger.info(f"Endpoint: {self.endpoint_url}")
@@ -38,7 +37,7 @@ class S3Client:
         logger.info("Region: ru-central-1")
 
     def get_client(self) -> Any:
-        return self.session.create_client(
+        return self.session.client(
             "s3",
             endpoint_url=self.endpoint_url,
             aws_access_key_id=self.access_key,
@@ -48,22 +47,15 @@ class S3Client:
             region_name="ru-central-1",
         )
 
-    def upload_file(self, file_path: str, s3_key: str | None = None) -> bool:
-        if not os.path.exists(file_path):
-            logger.error(f"Файл не найден: {file_path}")
-            return False
-
-        if s3_key is None:
-            s3_key = os.path.basename(file_path)
-
+    async def upload_file(self, file_path: str, s3_key: str) -> bool:
         try:
             logger.info(f"Загружаем файл {file_path} как {s3_key}")
 
-            client = self.get_client()
-            with open(file_path, "rb") as file:
-                client.put_object(
-                    Bucket=self.bucket_name, Key=s3_key, Body=file
-                )
+            async with self.get_client() as client:
+                with open(file_path, "rb") as file:
+                    await client.put_object(
+                        Bucket=self.bucket_name, Key=s3_key, Body=file.read()
+                    )
 
             logger.info(f"Файл успешно загружен: {s3_key}")
             return True
@@ -72,17 +64,23 @@ class S3Client:
             logger.error(f"Ошибка при загрузке файла {file_path}: {e!s}")
             return False
 
-    def download_file(self, s3_key: str, local_path: str) -> bool:
+    async def download_file(self, s3_key: str, local_path: str) -> bool:
         try:
+            import os
+
             dir_path = os.path.dirname(local_path)
             if dir_path:
                 os.makedirs(dir_path, exist_ok=True)
 
-            client = self.get_client()
-            response = client.get_object(Bucket=self.bucket_name, Key=s3_key)
+            async with self.get_client() as client:
+                response = await client.get_object(
+                    Bucket=self.bucket_name, Key=s3_key
+                )
+                async with response["Body"] as stream:
+                    content = await stream.read()
 
-            with open(local_path, "wb") as file:
-                file.write(response["Body"].read())
+                with open(local_path, "wb") as file:
+                    file.write(content)
 
             return True
 
@@ -107,7 +105,7 @@ class S3Client:
                 return f"{s:02d}s"
         return "-"
 
-    def generate_presigned_put_url(
+    async def generate_presigned_put_url(
         self,
         s3_key: str,
         expiration: int = 3600,
@@ -133,19 +131,18 @@ class S3Client:
 
             logger.info(f"Генерируем presigned PUT URL для {s3_key}")
 
-            client = self.get_client()
+            async with self.get_client() as client:
+                params: dict[str, Any] = {
+                    "Bucket": self.bucket_name,
+                    "Key": s3_key,
+                }
 
-            params: dict[str, Any] = {
-                "Bucket": self.bucket_name,
-                "Key": s3_key,
-            }
+                if content_type:
+                    params["ContentType"] = content_type
 
-            if content_type:
-                params["ContentType"] = content_type
-
-            url = client.generate_presigned_url(
-                "put_object", Params=params, ExpiresIn=expiration
-            )
+                url = await client.generate_presigned_url(
+                    "put_object", Params=params, ExpiresIn=expiration
+                )
 
             logger.info(f"Presigned PUT URL сгенерирован для {s3_key}")
             return str(url)
@@ -157,7 +154,7 @@ class S3Client:
             logger.error(error_msg)
             raise Exception(error_msg) from e
 
-    def generate_presigned_get_url(
+    async def generate_presigned_get_url(
         self,
         s3_key: str,
         expiration: int = 3600,
@@ -181,13 +178,12 @@ class S3Client:
 
             logger.info(f"Генерируем presigned GET URL для {s3_key}")
 
-            client = self.get_client()
-
-            url = client.generate_presigned_url(
-                "get_object",
-                Params={"Bucket": self.bucket_name, "Key": s3_key},
-                ExpiresIn=expiration,
-            )
+            async with self.get_client() as client:
+                url = await client.generate_presigned_url(
+                    "get_object",
+                    Params={"Bucket": self.bucket_name, "Key": s3_key},
+                    ExpiresIn=expiration,
+                )
 
             logger.info(f"Presigned GET URL сгенерирован для {s3_key}")
             return str(url)
@@ -199,7 +195,7 @@ class S3Client:
             logger.error(error_msg)
             raise Exception(error_msg) from e
 
-    def list_objects(self, prefix: str = "") -> list[dict[str, Any]]:
+    async def list_objects(self, prefix: str = "") -> list[dict[str, Any]]:
         """
         Получает список всех объектов в бакете
 
@@ -212,25 +208,24 @@ class S3Client:
         try:
             logger.info(f"Получаем список объектов с префиксом: '{prefix}'")
 
-            client = self.get_client()
             objects = []
-            paginator = client.get_paginator("list_objects_v2")
 
-            page_iterator = paginator.paginate(
-                Bucket=self.bucket_name, Prefix=prefix
-            )
+            async with self.get_client() as client:
+                paginator = client.get_paginator("list_objects_v2")
 
-            for page in page_iterator:
-                if "Contents" in page:
-                    for obj in page["Contents"]:
-                        objects.append(
-                            {
-                                "key": obj["Key"],
-                                "size": obj["Size"],
-                                "last_modified": obj["LastModified"],
-                                "etag": obj["ETag"],
-                            }
-                        )
+                async for page in paginator.paginate(
+                    Bucket=self.bucket_name, Prefix=prefix
+                ):
+                    if "Contents" in page:
+                        for obj in page["Contents"]:
+                            objects.append(
+                                {
+                                    "key": obj["Key"],
+                                    "size": obj["Size"],
+                                    "last_modified": obj["LastModified"],
+                                    "etag": obj["ETag"],
+                                }
+                            )
 
             logger.info(f"Найдено {len(objects)} объектов")
             return objects

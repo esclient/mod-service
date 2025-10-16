@@ -1,6 +1,6 @@
 from typing import Any
 
-from psycopg2.pool import ThreadedConnectionPool
+from asyncpg import Pool  # type: ignore[import-untyped]
 
 from modservice.repository.create_mod import create_mod as _create_mod
 from modservice.repository.get_mod_s3_key import (
@@ -12,31 +12,31 @@ from modservice.repository.set_status import set_status as _set_status
 
 
 class ModRepository:
-    def __init__(self, db_pool: ThreadedConnectionPool):
+    def __init__(self, db_pool: Pool):
         self._db_pool = db_pool
 
-    def create_mod(
+    async def create_mod(
         self,
         title: str,
         author_id: int,
         description: str,
     ) -> int:
-        return _create_mod(self._db_pool, title, author_id, description)
+        return await _create_mod(self._db_pool, title, author_id, description)
 
-    def insert_s3_key(
+    async def insert_s3_key(
         self,
         mod_id: int,
         author_id: int,
     ) -> str:
-        return _insert_s3_key(self._db_pool, mod_id, author_id)
+        return await _insert_s3_key(self._db_pool, mod_id, author_id)
 
-    def get_mod_s3_key(self, mod_id: int) -> str:
-        return str(_get_mod_s3_key(self._db_pool, mod_id))
+    async def get_mod_s3_key(self, mod_id: int) -> str:
+        return str(await _get_mod_s3_key(self._db_pool, mod_id))
 
-    def set_status(self, mod_id: int, status: str) -> bool:
-        return _set_status(self._db_pool, mod_id, status)
+    async def set_status(self, mod_id: int, status: str) -> bool:
+        return await _set_status(self._db_pool, mod_id, status)
 
-    def get_mods(
+    async def get_mods(
         self,
     ) -> list[dict[str, Any]]:
-        return _get_mods(self._db_pool)
+        return await _get_mods(self._db_pool)

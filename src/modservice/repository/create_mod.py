@@ -1,30 +1,22 @@
-from psycopg2.pool import ThreadedConnectionPool
+from asyncpg import Pool  # type: ignore[import-untyped]
 
 
-def create_mod(
-    db_pool: ThreadedConnectionPool,
+async def create_mod(
+    db_pool: Pool,
     title: str,  # noqa: ARG001
     author_id: int,  # noqa: ARG001
     description: str,  # noqa: ARG001
 ) -> int:
-    conn = db_pool.getconn()
-    try:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO mods (author_id, title, description, version, status, created_at)
-                VALUES (%s, %s, %s, %s, 'UPLOADING', NOW())
-                RETURNING id
-                """,
-                (
-                    author_id,
-                    title,
-                    description,
-                    1,
-                ),
-            )
-            result = cursor.fetchone()
-            conn.commit()
-            return result[0] if result else 0
-    finally:
-        db_pool.putconn(conn)
+    async with db_pool.acquire() as conn:
+        mod_id: int = await conn.fetchval(
+            """
+            INSERT INTO mods (author_id, title, description, version, status, created_at)
+            VALUES ($1, $2, $3, $4, 'UPLOADING', NOW())
+            RETURNING id
+            """,
+            author_id,
+            title,
+            description,
+            1,
+        )
+        return mod_id
