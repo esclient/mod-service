@@ -88,7 +88,7 @@ class S3Client:
             logger.error(f"Ошибка при скачивании файла {s3_key}: {e!s}")
             return False
 
-    def time_format(self, seconds: int) -> str:
+    def time_format(self, seconds: int | None) -> str:
         if seconds is not None:
             seconds = int(seconds)
             d = seconds // (3600 * 24)

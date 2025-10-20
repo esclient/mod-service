@@ -13,9 +13,12 @@ permissions:
 
 jobs:
   lint-and-test:
-    uses: esclient/tools/.github/workflows/lint-and-test-python.yml@v1.0.0
+    uses: esclient/tools/.github/workflows/lint-and-test-python.yml@v1.0.1
     with:
       python-version: "3.13.7"
       source: "modservice"
+      sonar-inclusions: "src/**,Dockerfile"
+      sonar-exclusions: "**/grpc/**"
+      sonar-coverage-exclusions: "src/modservice/server.py,src/modservice/settings.py"
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
