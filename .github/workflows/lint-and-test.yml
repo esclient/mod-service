@@ -13,8 +13,9 @@ permissions:
 
 jobs:
   lint-and-test:
-    uses: esclient/tools/.github/workflows/lint-and-test-python.yml@v1.0.4
+    uses: esclient/tools/.github/workflows/lint-and-test-python.yml@v1.0.0
     with:
-      python-version: '3.13.7'
+      python-version: "3.13.7"
+      source: "modservice"
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

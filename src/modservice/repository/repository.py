@@ -1,6 +1,6 @@
 from typing import Any
 
-from asyncpg import Pool  # type: ignore[import-untyped]
+from asyncpg import Pool
 
 from modservice.repository.create_mod import create_mod as _create_mod
 from modservice.repository.get_mod_s3_key import (

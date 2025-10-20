@@ -7,8 +7,8 @@ LOAD_ENVS_URL := 'https://raw.githubusercontent.com/esclient/tools/refs/heads/ma
 PROTO_TAG := 'v0.1.2'
 PROTO_NAME := 'mod.proto'
 TMP_DIR := '.proto'
-OUT_DIR := 'src/modservice/grpc'
-SERVICE_NAME := 'mod'
+SOURCE := 'modservice'
+OUT_DIR := 'src/' + SOURCE + '/grpc'
 
 MKDIR_TOOLS := 'mkdir -p tools'
 

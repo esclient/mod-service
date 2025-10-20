@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -10,11 +10,11 @@ class TestS3Service:
     @pytest.fixture
     def mock_s3_client(self) -> MagicMock:
         client = MagicMock(spec=S3Client)
-        client.generate_presigned_put_url = MagicMock()
-        client.generate_presigned_get_url = MagicMock()
-        client.upload_file = MagicMock()
-        client.download_file = MagicMock()
-        client.list_objects = MagicMock()
+        client.generate_presigned_put_url = AsyncMock()
+        client.generate_presigned_get_url = AsyncMock()
+        client.upload_file = AsyncMock()
+        client.download_file = AsyncMock()
+        client.list_objects = AsyncMock()
         return client
 
     @pytest.fixture
@@ -74,7 +74,8 @@ class TestS3Service:
         assert key1 != key3  # Разные filename
         assert key2 != key3  # Разные комбинации
 
-    def test_generate_upload_url(
+    @pytest.mark.asyncio
+    async def test_generate_upload_url(
         self, s3_service: S3Service, mock_s3_client: MagicMock
     ) -> None:
         """Тест генерации URL для загрузки с автогенерацией ключа"""
@@ -89,7 +90,7 @@ class TestS3Service:
             expected_presigned_url
         )
 
-        s3_key, presigned_url = s3_service.generate_upload_url(
+        s3_key, presigned_url = await s3_service.generate_upload_url(
             author_id, filename, title, expiration, content_type
         )
 
@@ -98,13 +99,14 @@ class TestS3Service:
         assert presigned_url == expected_presigned_url
 
         # Проверяем вызов generate_presigned_put_url
-        mock_s3_client.generate_presigned_put_url.assert_called_once_with(
+        mock_s3_client.generate_presigned_put_url.assert_awaited_once_with(
             s3_key=s3_key,
             expiration=expiration,
             content_type=content_type,
         )
 
-    def test_generate_upload_url_for_key(
+    @pytest.mark.asyncio
+    async def test_generate_upload_url_for_key(
         self, s3_service: S3Service, mock_s3_client: MagicMock
     ) -> None:
         """Тест генерации URL для загрузки по существующему ключу"""
@@ -117,20 +119,21 @@ class TestS3Service:
             expected_presigned_url
         )
 
-        presigned_url = s3_service.generate_upload_url_for_key(
+        presigned_url = await s3_service.generate_upload_url_for_key(
             s3_key, expiration, content_type
         )
 
         assert presigned_url == expected_presigned_url
 
         # Проверяем вызов generate_presigned_put_url
-        mock_s3_client.generate_presigned_put_url.assert_called_once_with(
+        mock_s3_client.generate_presigned_put_url.assert_awaited_once_with(
             s3_key=s3_key,
             expiration=expiration,
             content_type=content_type,
         )
 
-    def test_generate_download_url(
+    @pytest.mark.asyncio
+    async def test_generate_download_url(
         self, s3_service: S3Service, mock_s3_client: MagicMock
     ) -> None:
         """Тест генерации URL для скачивания"""
@@ -142,17 +145,20 @@ class TestS3Service:
             expected_presigned_url
         )
 
-        presigned_url = s3_service.generate_download_url(s3_key, expiration)
+        presigned_url = await s3_service.generate_download_url(
+            s3_key, expiration
+        )
 
         assert presigned_url == expected_presigned_url
 
         # Проверяем вызов generate_presigned_get_url
-        mock_s3_client.generate_presigned_get_url.assert_called_once_with(
+        mock_s3_client.generate_presigned_get_url.assert_awaited_once_with(
             s3_key=s3_key,
             expiration=expiration,
         )
 
-    def test_upload_file(
+    @pytest.mark.asyncio
+    async def test_upload_file(
         self, s3_service: S3Service, mock_s3_client: MagicMock
     ) -> None:
         """Тест загрузки файла"""
@@ -161,12 +167,13 @@ class TestS3Service:
 
         mock_s3_client.upload_file.return_value = True
 
-        result = s3_service.upload_file(file_path, s3_key)
+        result = await s3_service.upload_file(file_path, s3_key)
 
         assert result is True
-        mock_s3_client.upload_file.assert_called_once_with(file_path, s3_key)
+        mock_s3_client.upload_file.assert_awaited_once_with(file_path, s3_key)
 
-    def test_download_file(
+    @pytest.mark.asyncio
+    async def test_download_file(
         self, s3_service: S3Service, mock_s3_client: MagicMock
     ) -> None:
         """Тест скачивания файла"""
@@ -175,14 +182,15 @@ class TestS3Service:
 
         mock_s3_client.download_file.return_value = True
 
-        result = s3_service.download_file(s3_key, local_path)
+        result = await s3_service.download_file(s3_key, local_path)
 
         assert result is True
-        mock_s3_client.download_file.assert_called_once_with(
+        mock_s3_client.download_file.assert_awaited_once_with(
             s3_key, local_path
         )
 
-    def test_list_files(
+    @pytest.mark.asyncio
+    async def test_list_files(
         self, s3_service: S3Service, mock_s3_client: MagicMock
     ) -> None:
         """Тест получения списка файлов"""
@@ -194,12 +202,13 @@ class TestS3Service:
 
         mock_s3_client.list_objects.return_value = expected_files
 
-        result = s3_service.list_files(prefix)
+        result = await s3_service.list_files(prefix)
 
         assert result == expected_files
-        mock_s3_client.list_objects.assert_called_once_with(prefix)
+        mock_s3_client.list_objects.assert_awaited_once_with(prefix)
 
-    def test_generate_upload_url_auto_content_type(
+    @pytest.mark.asyncio
+    async def test_generate_upload_url_auto_content_type(
         self, s3_service: S3Service, mock_s3_client: MagicMock
     ) -> None:
         """Тест автоопределения content-type"""
@@ -211,16 +220,18 @@ class TestS3Service:
             expected_presigned_url
         )
 
-        _s3_key, _presigned_url = s3_service.generate_upload_url(
+        _s3_key, _presigned_url = await s3_service.generate_upload_url(
             author_id, filename
         )  # noqa: ARG001
 
         # Проверяем, что content_type был автоматически определен
-        mock_s3_client.generate_presigned_put_url.assert_called_once()
+        mock_s3_client.generate_presigned_put_url.assert_awaited_once()
         (
             _args,
             kwargs,
-        ) = mock_s3_client.generate_presigned_put_url.call_args  # noqa: ARG001
+        ) = (
+            mock_s3_client.generate_presigned_put_url.await_args
+        )  # noqa: ARG001
 
         assert kwargs["s3_key"].startswith(f"{author_id}/")
         assert kwargs["expiration"] == 3600  # Значение по умолчанию

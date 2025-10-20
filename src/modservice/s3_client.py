@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 import aioboto3
-from botocore.config import Config
+from aiobotocore.config import AioConfig
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class S3Client:
         self.bucket_name = bucket_name
         self.ssl_verify = verify
 
-        self.config = Config(
+        self.config = AioConfig(
             signature_version="s3v4",
             s3={"addressing_style": "virtual"},
             region_name="ru-central-1",
