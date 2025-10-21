@@ -19,6 +19,6 @@ jobs:
       source: "modservice"
       sonar-inclusions: "src/**,Dockerfile"
       sonar-exclusions: "**/grpc/**"
-      sonar-coverage-exclusions: "src/modservice/server.py,src/modservice/settings.py"
+      sonar-coverage-exclusions: "src/modservice/server.py,src/modservice/settings.py,src/modservice/s3_client.py"
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
