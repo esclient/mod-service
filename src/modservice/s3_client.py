@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 import aioboto3
+import aiofiles
 from aiobotocore.config import AioConfig
 
 logger = logging.getLogger(__name__)
@@ -51,11 +52,14 @@ class S3Client:
         try:
             logger.info(f"Загружаем файл {file_path} как {s3_key}")
 
-            async with self.get_client() as client:
-                with open(file_path, "rb") as file:
-                    await client.put_object(
-                        Bucket=self.bucket_name, Key=s3_key, Body=file.read()
-                    )
+            async with (
+                self.get_client() as client,
+                aiofiles.open(file_path, "rb") as file,
+            ):
+                payload = await file.read()
+                await client.put_object(
+                    Bucket=self.bucket_name, Key=s3_key, Body=payload
+                )
 
             logger.info(f"Файл успешно загружен: {s3_key}")
             return True
@@ -79,8 +83,8 @@ class S3Client:
                 async with response["Body"] as stream:
                     content = await stream.read()
 
-                with open(local_path, "wb") as file:
-                    file.write(content)
+                async with aiofiles.open(local_path, "wb") as file:
+                    await file.write(content)
 
             return True
 

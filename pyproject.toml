@@ -153,6 +153,7 @@ dev = [
     "types-protobuf==6.32.1.20250918",
     "types-psycopg2==2.9.21.20250915",
     "types-aioboto3==15.4.0",
+    "types-aiofiles==25.1.0.20251011",
     "botocore-stubs==1.40.55",
     "asyncpg-stubs==0.30.2",
 ]

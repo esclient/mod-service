@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:977a81ea8b39c618a4c30a14582f232bff5debe0b8fab8400d572e047e19b0f8"
+content_hash = "sha256:7d4b4cbaad3dcb3661f2c47f4e53b29584711390ec6ef016f1b925bf24f9a2a6"
 
 [[metadata.targets]]
 requires_python = "~=3.13"
@@ -1390,6 +1390,17 @@ dependencies = [
 files = [
     {file = "types_aiobotocore-2.25.0-py3-none-any.whl", hash = "sha256:7a9efa7e8240774546b95ae0db3b6f7cbf9f05c89db317612ec1d678649a88ff"},
     {file = "types_aiobotocore-2.25.0.tar.gz", hash = "sha256:7e5e96568935d5255095b5f8aaedc0c1b265770a260a2ab6ed7d4c7ea7fe8228"},
+]
+
+[[package]]
+name = "types-aiofiles"
+version = "25.1.0.20251011"
+requires_python = ">=3.9"
+summary = "Typing stubs for aiofiles"
+groups = ["dev"]
+files = [
+    {file = "types_aiofiles-25.1.0.20251011-py3-none-any.whl", hash = "sha256:8ff8de7f9d42739d8f0dadcceeb781ce27cd8d8c4152d4a7c52f6b20edb8149c"},
+    {file = "types_aiofiles-25.1.0.20251011.tar.gz", hash = "sha256:1c2b8ab260cb3cd40c15f9d10efdc05a6e1e6b02899304d80dfa0410e028d3ff"},
 ]
 
 [[package]]
