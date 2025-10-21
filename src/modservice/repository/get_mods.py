@@ -1,6 +1,6 @@
 from typing import Any
 
-from asyncpg import Pool  # type: ignore[import-untyped]
+from asyncpg import Pool
 
 
 async def get_mods(

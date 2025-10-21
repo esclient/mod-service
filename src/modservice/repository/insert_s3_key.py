@@ -1,4 +1,4 @@
-from asyncpg import Pool  # type: ignore[import-untyped]
+from asyncpg import Pool
 
 
 def generate_s3_key(author_id: int, mod_id: int) -> str:

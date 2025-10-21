@@ -2,7 +2,8 @@ import logging
 from typing import Any
 
 import aioboto3
-from botocore.config import Config
+import aiofiles
+from aiobotocore.config import AioConfig
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ class S3Client:
         self.bucket_name = bucket_name
         self.ssl_verify = verify
 
-        self.config = Config(
+        self.config = AioConfig(
             signature_version="s3v4",
             s3={"addressing_style": "virtual"},
             region_name="ru-central-1",
@@ -51,11 +52,14 @@ class S3Client:
         try:
             logger.info(f"Загружаем файл {file_path} как {s3_key}")
 
-            async with self.get_client() as client:
-                with open(file_path, "rb") as file:
-                    await client.put_object(
-                        Bucket=self.bucket_name, Key=s3_key, Body=file.read()
-                    )
+            async with (
+                self.get_client() as client,
+                aiofiles.open(file_path, "rb") as file,
+            ):
+                payload = await file.read()
+                await client.put_object(
+                    Bucket=self.bucket_name, Key=s3_key, Body=payload
+                )
 
             logger.info(f"Файл успешно загружен: {s3_key}")
             return True
@@ -79,8 +83,8 @@ class S3Client:
                 async with response["Body"] as stream:
                     content = await stream.read()
 
-                with open(local_path, "wb") as file:
-                    file.write(content)
+                async with aiofiles.open(local_path, "wb") as file:
+                    await file.write(content)
 
             return True
 
@@ -88,7 +92,7 @@ class S3Client:
             logger.error(f"Ошибка при скачивании файла {s3_key}: {e!s}")
             return False
 
-    def time_format(self, seconds: int) -> str:
+    def time_format(self, seconds: int | None) -> str:
         if seconds is not None:
             seconds = int(seconds)
             d = seconds // (3600 * 24)

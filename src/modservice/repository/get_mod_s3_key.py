@@ -1,7 +1,9 @@
-from asyncpg import Pool  # type: ignore[import-untyped]
+from typing import Literal
+
+from asyncpg import Pool
 
 
-async def get_mod_s3_key(db_pool: Pool, id: int) -> int:
+async def get_mod_s3_key(db_pool: Pool, id: int) -> str | Literal[0]:
     async with db_pool.acquire() as conn:
         s3_key = await conn.fetchval(
             """
@@ -12,4 +14,6 @@ async def get_mod_s3_key(db_pool: Pool, id: int) -> int:
             """,
             id,
         )
-        return s3_key if s3_key else 0
+        if s3_key is None:
+            return 0
+        return str(s3_key)

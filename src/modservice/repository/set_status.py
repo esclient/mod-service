@@ -1,4 +1,4 @@
-from asyncpg import Pool  # type: ignore[import-untyped]
+from asyncpg import Pool
 
 
 async def set_status(db_pool: Pool, mod_id: int, status: str) -> bool:
