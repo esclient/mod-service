@@ -8,6 +8,9 @@ from grpc_reflection.v1alpha import reflection
 
 from modservice.grpc import mod_pb2, mod_pb2_grpc
 from modservice.handler.handler import ModHandler
+from modservice.kafka.consumer import KafkaConsumer
+from modservice.kafka.producer import KafkaProducer
+from modservice.moderation.moderation_service import ModerationService
 from modservice.repository.repository import ModRepository
 from modservice.s3_client import S3Client
 from modservice.service.s3_service import S3Service
@@ -37,7 +40,31 @@ async def serve() -> None:
     s3_service = S3Service(s3_client)
 
     repo = ModRepository(db_pool)
-    service = ModService(repo, s3_service)
+
+    # Initialize Kafka producer
+    producer = KafkaProducer(
+        bootstrap_servers=settings.kafka_bootstrap_servers,
+        request_topic=settings.kafka_moderation_request_topic,
+    )
+    await producer.start()
+
+    # Create moderation service
+    moderation_service = ModerationService(producer, repo)
+
+    # Initialize Kafka consumer
+    consumer = KafkaConsumer(
+        bootstrap_servers=settings.kafka_bootstrap_servers,
+        response_topic=settings.kafka_moderation_response_topic,
+        group_id=settings.kafka_consumer_group_id,
+        moderation_service=moderation_service,
+    )
+    await consumer.start()
+
+    # Start consumer in background task
+    consumer_task = asyncio.create_task(consumer.consume_messages())
+
+    # Create service with moderation service
+    service = ModService(repo, s3_service, moderation_service)
     handler = ModHandler(service)
 
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=5))
@@ -54,7 +81,14 @@ async def serve() -> None:
     server.add_insecure_port(f"{settings.host}:{settings.port}")
     await server.start()
     logger.info(f"gRPC server listening on {settings.host}:{settings.port}")
-    await server.wait_for_termination()
+
+    try:
+        await server.wait_for_termination()
+    finally:
+        # Gracefully shutdown Kafka components
+        consumer_task.cancel()
+        await producer.stop()
+        await consumer.stop()
 
 
 def main() -> None:

@@ -1,6 +1,6 @@
 import logging
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,6 +22,33 @@ class Settings(BaseSettings):
     s3_secret_key: str = Field(validation_alias="S3_SECRET_KEY")
     s3_bucket_name: str = Field(validation_alias="S3_BUCKET_NAME")
     s3_verify: bool = Field(validation_alias="S3_VERIFY")
+
+    kafka_bootstrap_servers: str = Field(
+        validation_alias="KAFKA_BOOTSTRAP_SERVERS"
+    )
+    kafka_moderation_request_topic: str = Field(
+        validation_alias="KAFKA_MODERATION_REQUEST_TOPIC"
+    )
+    kafka_moderation_response_topic: str = Field(
+        validation_alias="KAFKA_MODERATION_RESPONSE_TOPIC"
+    )
+    kafka_consumer_group_id: str = Field(
+        validation_alias="KAFKA_CONSUMER_GROUP_ID"
+    )
+
+    @field_validator(
+        "kafka_bootstrap_servers",
+        "kafka_moderation_request_topic",
+        "kafka_moderation_response_topic",
+        "kafka_consumer_group_id",
+    )
+    @classmethod
+    def validate_non_empty_string(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError(
+                "Kafka configuration fields must be non-empty strings"
+            )
+        return v
 
     def configure_logging(self) -> None:
         logging.basicConfig(

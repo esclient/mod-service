@@ -10,6 +10,10 @@ TMP_DIR := '.proto'
 SOURCE := 'modservice'
 OUT_DIR := 'src/' + SOURCE + '/grpc'
 
+MODERATION_PROTO_TAG := 'v0.1.3'
+MODERATION_PROTO_NAME := 'moderation.proto'
+MODERATION_TMP_DIR := '.proto_moderation'
+
 MKDIR_TOOLS := 'mkdir -p tools'
 
 FETCH_COMMON_JUST := 'curl -fsSL ' + COMMON_JUST_URL + ' -o tools/common.just'

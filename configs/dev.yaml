@@ -11,3 +11,8 @@ S3_ACCESS_KEY: "dev-access"
 S3_SECRET_KEY: "5ece9238b18dc29d5e0724b3ae577cdf90b8f78b5eaf62ca"
 S3_BUCKET_NAME: "dev"
 S3_VERIFY: "true"
+
+KAFKA_BOOTSTRAP_SERVERS: "localhost:9092"
+KAFKA_MODERATION_REQUEST_TOPIC: "moderation-request"
+KAFKA_MODERATION_RESPONSE_TOPIC: "moderation-result"
+KAFKA_CONSUMER_GROUP_ID: "mod-service-group"
