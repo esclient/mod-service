@@ -4,6 +4,7 @@ import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
 
+from modservice.moderation.moderation_service import ModerationService
 from modservice.repository.repository import ModRepository
 from modservice.service.s3_service import S3Service
 from modservice.service.service import ModService
@@ -15,10 +16,11 @@ async def test_service_generate_upload_url_calls_s3_service(
 ) -> None:
     repo = mocker.Mock(spec=ModRepository)
     s3_service = mocker.Mock(spec=S3Service)
+    moderation_service = mocker.Mock(spec=ModerationService)
     expected = (faker.file_path(depth=2), faker.uri())
     s3_service.generate_upload_url = AsyncMock(return_value=expected)
 
-    service = ModService(repo, s3_service)
+    service = ModService(repo, s3_service, moderation_service)
 
     author_id = faker.random_int(min=1, max=100000)
     filename = faker.file_name()

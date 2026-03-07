@@ -2,6 +2,7 @@ import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
 
+from modservice.moderation.moderation_service import ModerationService
 from modservice.repository.repository import ModRepository
 from modservice.service.s3_service import S3Service
 from modservice.service.service import ModService
@@ -13,13 +14,14 @@ async def test_service_get_file_info_from_s3_key_passes_through(
 ) -> None:
     repo = mocker.Mock(spec=ModRepository)
     s3_service = mocker.Mock(spec=S3Service)
+    moderation_service = mocker.Mock(spec=ModerationService)
     info = {
         "author_id": faker.random_int(min=1, max=100000),
         "full_s3_key": faker.file_path(depth=2),
     }
     s3_service.get_file_info_from_s3_key.return_value = info
 
-    service = ModService(repo, s3_service)
+    service = ModService(repo, s3_service, moderation_service)
 
     s3_key = faker.file_path(depth=2)
     result = await service.get_file_info_from_s3_key(s3_key)

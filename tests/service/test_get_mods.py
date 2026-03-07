@@ -4,6 +4,7 @@ import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
 
+from modservice.moderation.moderation_service import ModerationService
 from modservice.repository.repository import ModRepository
 from modservice.service.s3_service import S3Service
 from modservice.service.service import ModService
@@ -15,11 +16,12 @@ async def test_service_get_mods_returns_helper_result(
 ) -> None:
     repo = mocker.Mock(spec=ModRepository)
     s3_service = mocker.Mock(spec=S3Service)
+    moderation_service = mocker.Mock(spec=ModerationService)
     mods = [{"id": faker.random_int(), "title": faker.word()}]
     helper = AsyncMock(return_value=mods)
     mocker.patch("modservice.service.service._get_mods", helper)
 
-    service = ModService(repo, s3_service)
+    service = ModService(repo, s3_service, moderation_service)
 
     result = await service.get_mods()
 

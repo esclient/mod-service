@@ -4,6 +4,7 @@ import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
 
+from modservice.moderation.moderation_service import ModerationService
 from modservice.repository.repository import ModRepository
 from modservice.service.s3_service import S3Service
 from modservice.service.service import ModService
@@ -15,13 +16,14 @@ async def test_service_get_mod_download_link(
 ) -> None:
     repo = mocker.Mock(spec=ModRepository)
     s3_service = mocker.Mock(spec=S3Service)
+    moderation_service = mocker.Mock(spec=ModerationService)
 
     s3_key = faker.file_path(depth=2)
     repo.get_mod_s3_key = AsyncMock(return_value=s3_key)
     download_url = faker.uri()
     s3_service.generate_mod_download_url = AsyncMock(return_value=download_url)
 
-    service = ModService(repo, s3_service)
+    service = ModService(repo, s3_service, moderation_service)
 
     mod_id = faker.random_int(min=1, max=100000)
     expiration = faker.random_int(min=100, max=10000)

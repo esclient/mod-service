@@ -4,6 +4,7 @@ import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
 
+from modservice.moderation.moderation_service import ModerationService
 from modservice.repository.repository import ModRepository
 from modservice.service.s3_service import S3Service
 from modservice.service.service import ModService
@@ -15,10 +16,11 @@ async def test_service_set_status_uses_helper(
 ) -> None:
     repo = mocker.Mock(spec=ModRepository)
     s3_service = mocker.Mock(spec=S3Service)
+    moderation_service = mocker.Mock(spec=ModerationService)
     helper = AsyncMock(return_value=True)
     mocker.patch("modservice.service.service._set_status", helper)
 
-    service = ModService(repo, s3_service)
+    service = ModService(repo, s3_service, moderation_service)
 
     mod_id = faker.random_int(min=1, max=100000)
     status = "UPLOADED"
