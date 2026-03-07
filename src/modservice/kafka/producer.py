@@ -8,13 +8,13 @@ from modservice.grpc.moderation_pb2 import ModerateObjectRequest, ObjectType
 
 
 class KafkaProducer:
-    """Kafka producer for sending moderation requests to the moderation service."""
+    """Sends moderation requests to Kafka."""
 
     def __init__(self, bootstrap_servers: str, request_topic: str):
-        """Initialize Kafka producer with connection settings.
+        """Set up Kafka producer.
 
         Args:
-            bootstrap_servers: Kafka broker addresses (e.g., "localhost:9092")
+            bootstrap_servers: Kafka broker addresses like "localhost:9092"
             request_topic: Topic name for moderation requests
         """
         self._bootstrap_servers = bootstrap_servers
@@ -23,11 +23,7 @@ class KafkaProducer:
         self._logger = logging.getLogger(__name__)
 
     async def start(self) -> None:
-        """Initialize Kafka producer connection.
-
-        Establishes connection to the Kafka broker and prepares the producer
-        for sending messages.
-        """
+        """Connect to Kafka broker and get ready to send messages."""
         self._producer = AIOKafkaProducer(
             bootstrap_servers=self._bootstrap_servers
         )
@@ -37,26 +33,22 @@ class KafkaProducer:
         )
 
     async def stop(self) -> None:
-        """Close Kafka producer connection.
-
-        Gracefully shuts down the producer and closes the connection to the
-        Kafka broker.
-        """
+        """Shut down producer and close Kafka connection."""
         if self._producer:
             await self._producer.stop()
 
     async def send_moderation_request(
         self, object_id: int, object_type: ObjectType, text: str
     ) -> None:
-        """Send moderation request message to Kafka.
+        """Send moderation request to Kafka.
 
         Args:
-            object_id: ID of the object to moderate (e.g., mod_id)
-            object_type: Type of object (e.g., OBJECT_TYPE_MOD_DESCRIPTION)
-            text: Text content to moderate
+            object_id: ID of the thing to moderate (mod_id, etc.)
+            object_type: What kind of object (OBJECT_TYPE_MOD_DESCRIPTION, etc.)
+            text: Text to check
 
         Raises:
-            RuntimeError: If producer is not started
+            RuntimeError: If you forgot to call start() first
         """
         if not self._producer:
             raise RuntimeError("Producer not started. Call start() first.")

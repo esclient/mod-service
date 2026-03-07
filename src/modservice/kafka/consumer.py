@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class KafkaConsumer:
-    """Kafka consumer for receiving moderation responses from the moderation service."""
+    """Receives moderation responses from Kafka."""
 
     def __init__(
         self,
@@ -19,13 +19,13 @@ class KafkaConsumer:
         group_id: str,
         moderation_service: "ModerationService",
     ):
-        """Initialize Kafka consumer with connection settings.
+        """Set up Kafka consumer.
 
         Args:
-            bootstrap_servers: Kafka broker addresses (e.g., "localhost:9092")
+            bootstrap_servers: Kafka broker addresses like "localhost:9092"
             response_topic: Topic name for moderation responses
             group_id: Consumer group ID for coordinating multiple consumers
-            moderation_service: ModerationService instance for processing responses
+            moderation_service: ModerationService to handle responses
         """
         self._bootstrap_servers = bootstrap_servers
         self._response_topic = response_topic
@@ -35,11 +35,7 @@ class KafkaConsumer:
         self._logger = logging.getLogger(__name__)
 
     async def start(self) -> None:
-        """Initialize Kafka consumer connection.
-
-        Establishes connection to the Kafka broker and subscribes to the
-        response topic.
-        """
+        """Connect to Kafka and subscribe to the response topic."""
         self._consumer = AIOKafkaConsumer(
             self._response_topic,
             bootstrap_servers=self._bootstrap_servers,
@@ -52,20 +48,15 @@ class KafkaConsumer:
         )
 
     async def stop(self) -> None:
-        """Close Kafka consumer connection.
-
-        Gracefully shuts down the consumer and closes the connection to the
-        Kafka broker.
-        """
+        """Shut down consumer and close Kafka connection."""
         if self._consumer:
             await self._consumer.stop()
 
     async def consume_messages(self) -> None:
-        """Continuously consume and process moderation responses.
+        """Keep consuming and processing moderation responses.
 
-        This method runs in an infinite loop, processing messages as they arrive.
-        Deserialization failures are logged and processing continues with the
-        next message.
+        Runs forever, processing messages as they come in. If deserialization
+        fails, we log it and move on to the next message.
         """
         from modservice.grpc.moderation_pb2 import ModerateObjectResponse
 
@@ -78,7 +69,7 @@ class KafkaConsumer:
                 response = ModerateObjectResponse()
                 response.ParseFromString(message.value)
 
-                # Extract object_id from message key (big endian encoding)
+                # Pull object_id from message key (big endian encoding)
                 object_id = int.from_bytes(message.key, byteorder="big")
 
                 # Process the moderation response

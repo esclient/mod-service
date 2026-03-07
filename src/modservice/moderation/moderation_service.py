@@ -8,18 +8,18 @@ from modservice.repository.repository import ModRepository
 
 
 class ModerationService:
-    """Service layer that coordinates moderation requests and responses.
+    """Coordinates moderation requests and responses.
 
-    This service bridges the Kafka producer/consumer with the repository,
-    handling the sending of moderation requests and processing of responses.
+    Bridges Kafka producer/consumer with the repository, handling both
+    sending moderation requests and processing responses.
     """
 
     def __init__(self, producer: KafkaProducer, repository: ModRepository):
-        """Initialize the moderation service.
+        """Set up moderation service.
 
         Args:
-            producer: Kafka producer for sending moderation requests
-            repository: Repository for updating mod status
+            producer: Kafka producer for sending requests
+            repository: Repo for updating mod status
         """
         self._producer = producer
         self._repository = repository
@@ -30,12 +30,12 @@ class ModerationService:
     ) -> None:
         """Send moderation request for a mod.
 
-        Combines title and description with a single space separator and sends
-        the request to the moderation service via Kafka. This is a fire-and-forget
-        operation - failures are logged but do not raise exceptions.
+        Mashes title and description together with a space and sends it off
+        to moderation via Kafka. Fire-and-forget - failures get logged but
+        don't blow up.
 
         Args:
-            mod_id: ID of the mod to moderate
+            mod_id: Mod ID to moderate
             title: Mod title
             description: Mod description
         """
@@ -57,13 +57,13 @@ class ModerationService:
     ) -> None:
         """Process moderation response and update mod status.
 
-        Maps the approved boolean to the appropriate mod status:
-        - approved=True -> status="UPLOADED"
-        - approved=False -> status="BANNED"
+        Maps approved boolean to mod status:
+        - approved=True -> UPLOADED
+        - approved=False -> BANNED
 
         Args:
-            object_id: ID of the mod (from the moderation response)
-            approved: Whether the content was approved by moderation
+            object_id: Mod ID from the response
+            approved: Whether moderation passed
         """
         new_status = "UPLOADED" if approved else "BANNED"
         self._logger.info(
