@@ -1,65 +1,72 @@
 """Kafka producer for sending moderation requests."""
 
+from confluent_kafka import Producer, KafkaException
 import logging
+from .config import KafkaConfig
+from modservice.grpc import moderation_pb2
 
-from aiokafka import AIOKafkaProducer  # type: ignore[import-untyped]
-
-from modservice.grpc.moderation_pb2 import ModerateObjectRequest, ObjectType
+logger = logging.getLogger(__name__)
 
 
 class KafkaProducer:
-    """Sends moderation requests to Kafka."""
 
-    def __init__(self, bootstrap_servers: str, request_topic: str):
-        """Set up Kafka producer.
+    def __init__(self, config: KafkaConfig):
+        self.config = config
+        self.producer = Producer(config.get_producer_config())
+        self.topic = config.request_topic
 
-        Args:
-            bootstrap_servers: Kafka broker addresses like "localhost:9092"
-            request_topic: Topic name for moderation requests
-        """
-        self._bootstrap_servers = bootstrap_servers
-        self._request_topic = request_topic
-        self._producer: AIOKafkaProducer | None = None
-        self._logger = logging.getLogger(__name__)
+        logger.info(f"KafkaProducer initialized for topic: {self.topic}")
 
-    async def start(self) -> None:
-        """Connect to Kafka broker and get ready to send messages."""
-        self._producer = AIOKafkaProducer(
-            bootstrap_servers=self._bootstrap_servers
-        )
-        await self._producer.start()
-        self._logger.info(
-            f"Kafka producer connected to {self._bootstrap_servers}"
-        )
+    def send_moderation_request(self, request: moderation_pb2.ModerateObjectRequest, retries: int = 3) -> bool:
+        for _ in range(retries):
+            try:
+                serialized_request = request.SerializeToString()
 
-    async def stop(self) -> None:
-        """Shut down producer and close Kafka connection."""
-        if self._producer:
-            await self._producer.stop()
+                key = str(request.id).encode('utf-8')
 
-    async def send_moderation_request(
-        self, object_id: int, object_type: ObjectType, text: str
-    ) -> None:
-        """Send moderation request to Kafka.
+                self.producer.produce(
+                    topic=self.topic,
+                    value=serialized_request,
+                    key=key,
+                    partition=-1,
+                    callback=self._delivery_callback
+                )
 
-        Args:
-            object_id: ID of the thing to moderate (mod_id, etc.)
-            object_type: What kind of object (OBJECT_TYPE_MOD_DESCRIPTION, etc.)
-            text: Text to check
+                self.producer.poll(0)
 
-        Raises:
-            RuntimeError: If you forgot to call start() first
-        """
-        if not self._producer:
-            raise RuntimeError("Producer not started. Call start() first.")
+                logger.debug(f"Moderation request queued: ID={request.id}, text_length={len(request.text)}")
+                return True
 
-        request = ModerateObjectRequest(
-            id=object_id, type=object_type, text=text
-        )
-        message_bytes = request.SerializeToString()
-        # Encode object_id as message key (big-endian, 8 bytes)
-        key_bytes = object_id.to_bytes(8, byteorder="big")
-        await self._producer.send(
-            self._request_topic, value=message_bytes, key=key_bytes
-        )
-        self._logger.info(f"Sent moderation request for object {object_id}")
+            except BufferError as e:
+                logger.error(f"Producer buffer full, message not queued: {e}")
+                return False
+            except KafkaException as e:
+                logger.error(f"Failed to produce message: {e}")
+                return False
+            except Exception as e:
+                logger.error(f"Unexpected error producing message: {e}")
+                return False
+        return False
+
+    def _delivery_callback(self, err, msg):
+
+        if err is not None:
+            logger.error(f"Message delivery failed: {err}")
+        else:
+            logger.debug(
+                f"Message delivered: topic={msg.topic()}, "
+                f"partition={msg.partition()}, offset={msg.offset()}"
+            )
+
+    def flush(self, timeout: float = 10.0):
+
+        remaining = self.producer.flush(timeout)
+
+        if remaining > 0:
+            logger.warning(f"Flush incomplete: {remaining} messages still pending")
+        else:
+            logger.debug("All messages flushed successfully")
+
+    def __del__(self):
+        if hasattr(self, 'producer'):
+            self.flush()

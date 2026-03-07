@@ -1,83 +1,108 @@
 """Kafka consumer for receiving moderation responses."""
 
+from confluent_kafka import Consumer, KafkaException, KafkaError
 import logging
-from typing import TYPE_CHECKING
+import threading
+from .config import KafkaConfig
+from modservice.grpc import moderation_pb2
 
-from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
-
-if TYPE_CHECKING:
-    from modservice.moderation.moderation_service import ModerationService
+logger = logging.getLogger(__name__)
 
 
 class KafkaConsumer:
-    """Receives moderation responses from Kafka."""
 
-    def __init__(
-        self,
-        bootstrap_servers: str,
-        response_topic: str,
-        group_id: str,
-        moderation_service: "ModerationService",
-    ):
-        """Set up Kafka consumer.
+    def __init__(self, config: KafkaConfig, callback):
 
-        Args:
-            bootstrap_servers: Kafka broker addresses like "localhost:9092"
-            response_topic: Topic name for moderation responses
-            group_id: Consumer group ID for coordinating multiple consumers
-            moderation_service: ModerationService to handle responses
-        """
-        self._bootstrap_servers = bootstrap_servers
-        self._response_topic = response_topic
-        self._group_id = group_id
-        self._moderation_service = moderation_service
-        self._consumer: AIOKafkaConsumer | None = None
-        self._logger = logging.getLogger(__name__)
+        self.config = config
+        self.callback = callback
+        self.consumer = Consumer(config.get_consumer_config())
+        self.topic = config.result_topic
+        self.running = False
+        self.consumer_thread = None
 
-    async def start(self) -> None:
-        """Connect to Kafka and subscribe to the response topic."""
-        self._consumer = AIOKafkaConsumer(
-            self._response_topic,
-            bootstrap_servers=self._bootstrap_servers,
-            group_id=self._group_id,
-        )
-        await self._consumer.start()
-        self._logger.info(
-            f"Kafka consumer subscribed to {self._response_topic} "
-            f"with group {self._group_id}"
-        )
+        self.consumer.subscribe([self.topic])
+        logger.info(f"KafkaConsumer subscribed to topic: {self.topic}")
 
-    async def stop(self) -> None:
-        """Shut down consumer and close Kafka connection."""
-        if self._consumer:
-            await self._consumer.stop()
+    def start(self):
 
-    async def consume_messages(self) -> None:
-        """Keep consuming and processing moderation responses.
+        if self.running:
+            logger.warning("Consumer already running")
+            return
 
-        Runs forever, processing messages as they come in. If deserialization
-        fails, we log it and move on to the next message.
-        """
-        from modservice.grpc.moderation_pb2 import ModerateObjectResponse
+        self.running = True
+        self.consumer_thread = threading.Thread(target=self._consume_loop, daemon=True)
+        self.consumer_thread.start()
+        logger.info("KafkaConsumer started")
 
-        if not self._consumer:
-            raise RuntimeError("Consumer not started. Call start() first.")
+    def stop(self):
 
-        async for message in self._consumer:
+        if not self.running:
+            return
+
+        self.running = False
+
+        if self.consumer_thread and self.consumer_thread.is_alive():
+            self.consumer_thread.join(timeout=5.0)
+
+        self.consumer.close()
+        logger.info("KafkaConsumer stopped")
+
+    def _consume_loop(self):
+
+        logger.info("Consumer loop started")
+
+        while self.running:
             try:
-                # Deserialize the protobuf message
-                response = ModerateObjectResponse()
-                response.ParseFromString(message.value)
+                msg = self.consumer.poll(timeout=1.0)
 
-                # Pull object_id from message key (big endian encoding)
-                object_id = int.from_bytes(message.key, byteorder="big")
+                if msg is None:
+                    continue
+                if msg.error():
+                    if msg.error().code() == KafkaError._PARTITION_EOF:
+                        logger.debug(f"Reached end of partition for topic {msg.topic()}")
+                    elif msg.error().code() == KafkaError._TIMED_OUT:
+                        logger.debug("Timeout")
+                    else:
+                        logger.error(f"Consumer error: {msg.error()}")
+                    continue
 
-                # Process the moderation response
-                await self._moderation_service.process_moderation_response(
-                    object_id=object_id, approved=response.success
-                )
+                self._process_message(msg)
+
+            except KafkaException as e:
+                logger.error(f"Kafka exception in consume loop: {e}")
             except Exception as e:
-                self._logger.error(
-                    f"Failed to process moderation response: {e}",
-                    exc_info=True,
-                )
+                logger.error(f"Unexpected error in consume loop: {e}")
+
+        logger.info("Consumer loop ended")
+
+    def _process_message(self, msg):
+
+        try:
+            object_id = 0
+            if msg.key() is not None:
+                try:
+                    key_str = msg.key().decode('utf-8')
+                    object_id = int(key_str)
+                except ValueError as e:
+                    logger.error(f"Failed to parse message key to request ID: {e}")
+                    return
+
+            response = moderation_pb2.ModerateObjectResponse()
+            response.ParseFromString(msg.value())
+
+            logger.info(
+                f"Received moderation response: object_id={object_id}, "
+                f"success={response.success}"
+            )
+
+            if self.callback:
+                try:
+                    self.callback(response, object_id)
+                except Exception as e:
+                    logger.error(f"Error in callback: {e}")
+
+        except Exception as e:
+            logger.error(f"Failed to process message: {e}")
+
+    def is_running(self) -> bool:
+        return self.running

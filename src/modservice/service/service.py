@@ -32,7 +32,7 @@ class ModService:
 
         # Send moderation request after mod is created (fire-and-forget)
         mod_id = result[0]
-        await self._moderation_service.send_moderation_request(
+        self._moderation_service.send_moderation_request(
             mod_id, title, description
         )
 

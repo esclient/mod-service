@@ -23,23 +23,23 @@ class Settings(BaseSettings):
     s3_bucket_name: str = Field(validation_alias="S3_BUCKET_NAME")
     s3_verify: bool = Field(validation_alias="S3_VERIFY")
 
-    kafka_bootstrap_servers: str = Field(
-        validation_alias="KAFKA_BOOTSTRAP_SERVERS"
+    kafka_brokers: str = Field(
+        validation_alias="KAFKA_BROKERS"
     )
-    kafka_moderation_request_topic: str = Field(
-        validation_alias="KAFKA_MODERATION_REQUEST_TOPIC"
+    kafka_request_topic: str = Field(
+        validation_alias="KAFKA_REQUEST_TOPIC"
     )
-    kafka_moderation_response_topic: str = Field(
-        validation_alias="KAFKA_MODERATION_RESPONSE_TOPIC"
+    kafka_result_topic: str = Field(
+        validation_alias="KAFKA_RESULT_TOPIC"
     )
     kafka_consumer_group_id: str = Field(
         validation_alias="KAFKA_CONSUMER_GROUP_ID"
     )
 
     @field_validator(
-        "kafka_bootstrap_servers",
-        "kafka_moderation_request_topic",
-        "kafka_moderation_response_topic",
+        "kafka_brokers",
+        "kafka_request_topic",
+        "kafka_result_topic",
         "kafka_consumer_group_id",
     )
     @classmethod
