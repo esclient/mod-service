@@ -34,14 +34,14 @@ class TestInitialModStatusProperty:
         author_id: int,
         description: str,
     ) -> None:
-        """Property 1: Initial mod status is UPLOADING.
+        """Property 1: Initial mod status is ON_MODERATION.
 
         **Feature: mod-kafka-moderation, Property 1: For any mod creation with
         valid title, author_id, and description, the mod's initial status in
-        the database should be UPLOADING**
+        the database should be ON_MODERATION**
 
         For any mod creation with valid title, author_id, and description,
-        the mod's initial status in the database should be UPLOADING.
+        the mod's initial status in the database should be ON_MODERATION.
         """
         # Mock database pool and connection
         mod_id = 123
@@ -69,7 +69,7 @@ class TestInitialModStatusProperty:
         ):
             # Mock moderation service
             moderation_service = Mock(spec=ModerationService)
-            moderation_service.send_moderation_request = AsyncMock()
+            moderation_service.send_moderation_request = Mock(return_value=True)
 
             # Create service and call create_mod
             service = ModService(repo, s3_service, moderation_service)
@@ -82,15 +82,15 @@ class TestInitialModStatusProperty:
             assert result_s3_key == s3_key
             assert result_upload_url == upload_url
 
-            # Assert the SQL INSERT was called with status='UPLOADING'
+            # Assert the SQL INSERT was called with status='ON_MODERATION'
             assert (
                 conn.fetchval.await_count == 1
             ), "fetchval should be called exactly once"
 
-            # Verify the SQL contains 'UPLOADING' as the status
+            # Verify the SQL contains 'ON_MODERATION' as the status
             call_args = conn.fetchval.await_args.args
             sql = call_args[0]
-            assert "'UPLOADING'" in sql, "SQL should set status to 'UPLOADING'"
+            assert "'ON_MODERATION'" in sql, "SQL should set status to 'ON_MODERATION'"
 
             # Verify the parameters match
             assert (

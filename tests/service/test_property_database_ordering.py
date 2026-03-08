@@ -77,13 +77,14 @@ class TestDatabaseOperationOrdering:
             repo, "insert_s3_key", new=AsyncMock(return_value=s3_key)
         ):
             # Mock Kafka producer to track send timing
-            async def mock_send_moderation_request(  # noqa: RUF029
+            def mock_send_moderation_request(  # noqa: RUF029
                 *args: object, **kwargs: object
-            ) -> None:
+            ) -> bool:
                 operation_order.append("kafka_send")
+                return True
 
             kafka_producer = Mock()
-            kafka_producer.send_moderation_request = AsyncMock(
+            kafka_producer.send_moderation_request = Mock(
                 side_effect=mock_send_moderation_request
             )
 

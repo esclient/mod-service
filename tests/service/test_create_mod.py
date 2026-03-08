@@ -17,7 +17,7 @@ async def test_service_create_mod_invokes_helper(
     repo = mocker.Mock(spec=ModRepository)
     s3_service = mocker.Mock(spec=S3Service)
     moderation_service = mocker.Mock(spec=ModerationService)
-    moderation_service.send_moderation_request = AsyncMock()
+    moderation_service.send_moderation_request = mocker.Mock(return_value=True)
     service = ModService(repo, s3_service, moderation_service)
 
     expected = (
@@ -38,6 +38,6 @@ async def test_service_create_mod_invokes_helper(
     helper.assert_awaited_once_with(
         repo, s3_service, title, author_id, description
     )
-    moderation_service.send_moderation_request.assert_awaited_once_with(
+    moderation_service.send_moderation_request.assert_called_once_with(
         expected[0], title, description
     )

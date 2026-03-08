@@ -96,15 +96,15 @@ class TestModCreationDespiteKafkaFailure:
                 result_upload_url == upload_url
             ), "create_mod should return the upload_url"
 
-            # Assert the SQL INSERT was called with status='UPLOADING'
+            # Assert the SQL INSERT was called with status='ON_MODERATION'
             assert (
                 conn.fetchval.await_count == 1
             ), "fetchval should be called exactly once"
 
-            # Verify the SQL contains 'UPLOADING' as the status
+            # Verify the SQL contains 'ON_MODERATION' as the status
             call_args = conn.fetchval.await_args.args
         sql = call_args[0]
-        assert "'UPLOADING'" in sql, "SQL should set status to 'UPLOADING'"
+        assert "'ON_MODERATION'" in sql, "SQL should set status to 'ON_MODERATION'"
 
         # Verify the parameters match
         assert (
