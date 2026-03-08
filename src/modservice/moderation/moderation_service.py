@@ -65,7 +65,9 @@ class ModerationService:
             logger.error(f"Error handling moderation response: {e}")
 
     def _update_mod_status(self, mod_id: int, approved: bool) -> None:
-        new_status = "UPLOADED" if approved else "BANNED"
+        new_status = "UPLOADED" if approved else "HIDDEN"
+
+        logger.info(f"Updating mod status: mod_id={mod_id}, approved={approved}, new_status={new_status}")
 
         coroutine = self._repo.set_status(mod_id, new_status)
 
@@ -76,6 +78,8 @@ class ModerationService:
                 success = future.result()
                 if not success:
                     logger.error(f"Failed to update mod status: mod_id={mod_id}")
+                else:
+                    logger.info(f"Successfully updated mod status: mod_id={mod_id}, status={new_status}")
             except Exception as e:
                 logger.error(f"Error updating mod status: {e}")
 
