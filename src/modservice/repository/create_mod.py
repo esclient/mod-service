@@ -11,7 +11,7 @@ async def create_mod(
         mod_id: int = await conn.fetchval(
             """
             INSERT INTO mods (author_id, title, description, version, status, created_at)
-            VALUES ($1, $2, $3, $4, 'UPLOADING', NOW())
+            VALUES ($1, $2, $3, $4, 'ON_MODERATION', NOW())
             RETURNING id
             """,
             author_id,
