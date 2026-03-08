@@ -1,12 +1,12 @@
 -- +goose Up
--- +goose StatementBegin
+-- +goose NO TRANSACTION
 
 -- Add ON_MODERATION to existing mod_status enum
 ALTER TYPE mod_status ADD VALUE IF NOT EXISTS 'ON_MODERATION';
 
+-- +goose StatementBegin
 -- Update existing UPLOADING mods to ON_MODERATION
 UPDATE mods SET status = 'ON_MODERATION' WHERE status = 'UPLOADING';
-
 -- +goose StatementEnd
 
 -- +goose Down
