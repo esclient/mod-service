@@ -1,10 +1,11 @@
 import grpc
 
-from modservice.constants import STATUS_BANNED, STATUS_HIDDEN, STATUS_UPLOADED
+from modservice.constants import STATUS_BANNED, STATUS_HIDDEN, STATUS_ON_MODERATION, STATUS_UPLOADED
 from modservice.grpc import mod_pb2
 from modservice.service.service import ModService
 
 STATUS_TO_PROTO: dict[str, mod_pb2.ModStatus] = {
+    STATUS_ON_MODERATION: mod_pb2.ModStatus.MOD_STATUS_UNSPECIFIED,
     STATUS_UPLOADED: mod_pb2.ModStatus.MOD_STATUS_UPLOADED,
     STATUS_BANNED: mod_pb2.ModStatus.MOD_STATUS_BANNED,
     STATUS_HIDDEN: mod_pb2.ModStatus.MOD_STATUS_HIDDEN,
