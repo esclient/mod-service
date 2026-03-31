@@ -1,5 +1,6 @@
 from typing import Any
 
+from modservice.moderation.moderation_service import ModerationService
 from modservice.repository.repository import ModRepository
 from modservice.service.create_mod import create_mod as _create_mod
 from modservice.service.get_mods import get_mods as _get_mods
@@ -8,20 +9,34 @@ from modservice.service.set_status import set_status as _set_status
 
 
 class ModService:
-    def __init__(self, repo: ModRepository, s3_service: S3Service) -> None:
+    def __init__(
+        self,
+        repo: ModRepository,
+        s3_service: S3Service,
+        moderation_service: ModerationService,
+    ) -> None:
         self._repo = repo
         self._s3_service = s3_service
+        self._moderation_service = moderation_service
 
     async def create_mod(
         self, title: str, author_id: int, description: str
     ) -> tuple[int, str, str]:
-        return await _create_mod(
+        result = await _create_mod(
             self._repo,
             self._s3_service,
             title,
             author_id,
             description,
         )
+
+        # Send moderation request after mod is created (fire-and-forget)
+        mod_id = result[0]
+        self._moderation_service.send_moderation_request(
+            mod_id, title, description
+        )
+
+        return result
 
     async def generate_s3_key(
         self, author_id: int, filename: str, title: str | None = None

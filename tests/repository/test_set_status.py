@@ -39,14 +39,31 @@ async def test_set_status_returns_true_on_update(
 
 
 @pytest.mark.asyncio
-async def test_set_status_returns_false_on_exception(
+async def test_set_status_raises_exception_on_database_error(
     mocker: MockerFixture, faker: Faker
 ) -> None:
     pool = mocker.Mock()
     pool.acquire.side_effect = RuntimeError("boom")
 
-    result = await set_status(
-        pool, faker.random_int(min=1, max=100000), "BANNED"
-    )
+    with pytest.raises(RuntimeError, match="boom"):
+        await set_status(pool, faker.random_int(min=1, max=100000), "BANNED")
+
+
+@pytest.mark.asyncio
+async def test_set_status_returns_false_when_mod_not_found(
+    mocker: MockerFixture, faker: Faker
+) -> None:
+    conn = mocker.Mock()
+    conn.execute = mocker.AsyncMock(return_value="UPDATE 0")
+    acquire_cm = mocker.AsyncMock()
+    acquire_cm.__aenter__.return_value = conn
+    acquire_cm.__aexit__.return_value = None
+    pool = mocker.Mock()
+    pool.acquire.return_value = acquire_cm
+
+    mod_id = faker.random_int(min=1, max=100000)
+    status = "BANNED"
+
+    result = await set_status(pool, mod_id, status)
 
     assert result is False
