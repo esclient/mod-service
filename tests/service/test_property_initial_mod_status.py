@@ -69,7 +69,9 @@ class TestInitialModStatusProperty:
         ):
             # Mock moderation service
             moderation_service = Mock(spec=ModerationService)
-            moderation_service.send_moderation_request = Mock(return_value=True)
+            moderation_service.send_moderation_request = Mock(
+                return_value=True
+            )
 
             # Create service and call create_mod
             service = ModService(repo, s3_service, moderation_service)
@@ -90,7 +92,9 @@ class TestInitialModStatusProperty:
             # Verify the SQL contains 'ON_MODERATION' as the status
             call_args = conn.fetchval.await_args.args
             sql = call_args[0]
-            assert "'ON_MODERATION'" in sql, "SQL should set status to 'ON_MODERATION'"
+            assert (
+                "'ON_MODERATION'" in sql
+            ), "SQL should set status to 'ON_MODERATION'"
 
             # Verify the parameters match
             assert (

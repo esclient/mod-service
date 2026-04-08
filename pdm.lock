@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:26d30cdb6d5cf685c8bc4e118c5471214345e0d78781b7264b3a136dcd330955"
+content_hash = "sha256:b27befe1d389904a8c39e5bcaf131e3ca85643cc09eb391391e590439e21c79e"
 
 [[metadata.targets]]
 requires_python = "~=3.13"
@@ -1457,6 +1457,17 @@ groups = ["dev"]
 files = [
     {file = "types_awscrt-0.28.2-py3-none-any.whl", hash = "sha256:d08916fa735cfc032e6a8cfdac92785f1c4e88623999b224ea4e6267d5de5fcb"},
     {file = "types_awscrt-0.28.2.tar.gz", hash = "sha256:4349b6fc7b1cd9c9eb782701fb213875db89ab1781219c0e947dd7c4d9dcd65e"},
+]
+
+[[package]]
+name = "types-confluent-kafka"
+version = "1.2.2"
+requires_python = "<4.0,>=3.8"
+summary = ""
+groups = ["dev"]
+files = [
+    {file = "types_confluent_kafka-1.2.2-py3-none-any.whl", hash = "sha256:61dbcf5223d48593ec925f69ce39f63b5ec79902b3f27e496ff0e7bceeba4baf"},
+    {file = "types_confluent_kafka-1.2.2.tar.gz", hash = "sha256:c1e4095ed8bd87b9f2b05f0b766ad0c2ade4e19da7e41c91542c805639d0bbef"},
 ]
 
 [[package]]

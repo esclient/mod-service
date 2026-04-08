@@ -1,9 +1,13 @@
 import asyncio
 import logging
+from collections.abc import Callable
 from concurrent import futures
+from typing import cast
+
 import asyncpg
 import grpc
 from grpc_reflection.v1alpha import reflection
+
 from modservice.grpc import mod_pb2, mod_pb2_grpc
 from modservice.handler.handler import ModHandler
 from modservice.moderation.moderation_service import ModerationService
@@ -43,9 +47,11 @@ async def serve() -> None:
     handler = ModHandler(service)
 
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=5))
-    mod_pb2_grpc.add_ModServiceServicer_to_server(
-        handler, server
+    add_servicer_to_server = cast(
+        Callable[[mod_pb2_grpc.ModServiceServicer, grpc.aio.Server], None],
+        mod_pb2_grpc.add_ModServiceServicer_to_server,
     )
+    add_servicer_to_server(handler, server)
 
     SERVICE_NAMES = (
         mod_pb2.DESCRIPTOR.services_by_name["ModService"].full_name,
