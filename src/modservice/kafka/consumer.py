@@ -1,40 +1,52 @@
 """Kafka consumer for receiving moderation responses."""
 
-from confluent_kafka import Consumer, KafkaException, KafkaError
 import logging
 import threading
-from .config import KafkaConfig
+from collections.abc import Callable
+
+from confluent_kafka import Consumer, KafkaError, KafkaException, Message
+
 from modservice.grpc import moderation_pb2
+
+from .config import KafkaConfig
 
 logger = logging.getLogger(__name__)
 
 
 class KafkaConsumer:
 
-    def __init__(self, config: KafkaConfig, callback):
+    def __init__(
+        self,
+        config: KafkaConfig,
+        callback: (
+            Callable[[moderation_pb2.ModerateObjectResponse, int], None] | None
+        ),
+    ) -> None:
 
         self.config = config
         self.callback = callback
         self.consumer = Consumer(config.get_consumer_config())
         self.topic = config.result_topic
         self.running = False
-        self.consumer_thread = None
+        self.consumer_thread: threading.Thread | None = None
 
         self.consumer.subscribe([self.topic])
         logger.info(f"KafkaConsumer subscribed to topic: {self.topic}")
 
-    def start(self):
+    def start(self) -> None:
 
         if self.running:
             logger.warning("Consumer already running")
             return
 
         self.running = True
-        self.consumer_thread = threading.Thread(target=self._consume_loop, daemon=True)
+        self.consumer_thread = threading.Thread(
+            target=self._consume_loop, daemon=True
+        )
         self.consumer_thread.start()
         logger.info("KafkaConsumer started")
 
-    def stop(self):
+    def stop(self) -> None:
 
         if not self.running:
             return
@@ -47,7 +59,7 @@ class KafkaConsumer:
         self.consumer.close()
         logger.info("KafkaConsumer stopped")
 
-    def _consume_loop(self):
+    def _consume_loop(self) -> None:
 
         logger.info("Consumer loop started")
 
@@ -57,13 +69,16 @@ class KafkaConsumer:
 
                 if msg is None:
                     continue
-                if msg.error():
-                    if msg.error().code() == KafkaError._PARTITION_EOF:
-                        logger.debug(f"Reached end of partition for topic {msg.topic()}")
-                    elif msg.error().code() == KafkaError._TIMED_OUT:
+                error = msg.error()
+                if error is not None:
+                    if error.code() == KafkaError._PARTITION_EOF:
+                        logger.debug(
+                            f"Reached end of partition for topic {msg.topic()}"
+                        )
+                    elif error.code() == KafkaError._TIMED_OUT:
                         logger.debug("Timeout")
                     else:
-                        logger.error(f"Consumer error: {msg.error()}")
+                        logger.error(f"Consumer error: {error}")
                     continue
 
                 self._process_message(msg)
@@ -75,20 +90,35 @@ class KafkaConsumer:
 
         logger.info("Consumer loop ended")
 
-    def _process_message(self, msg):
+    def _process_message(self, msg: Message) -> None:
 
         try:
             object_id = 0
-            if msg.key() is not None:
+            message_key = msg.key()
+            if message_key is not None:
                 try:
-                    key_str = msg.key().decode('utf-8')
+                    key_str = (
+                        message_key.decode("utf-8")
+                        if isinstance(message_key, bytes)
+                        else message_key
+                    )
                     object_id = int(key_str)
                 except ValueError as e:
-                    logger.error(f"Failed to parse message key to request ID: {e}")
+                    logger.error(
+                        f"Failed to parse message key to request ID: {e}"
+                    )
                     return
 
+            message_value = msg.value()
+            if message_value is None:
+                logger.error("Received message without payload")
+                return
+            if not isinstance(message_value, bytes):
+                logger.error("Received message payload with unexpected type")
+                return
+
             response = moderation_pb2.ModerateObjectResponse()
-            response.ParseFromString(msg.value())
+            response.ParseFromString(message_value)
 
             logger.info(
                 f"Received moderation response: object_id={object_id}, "

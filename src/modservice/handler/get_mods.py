@@ -1,6 +1,11 @@
 import grpc
 
-from modservice.constants import STATUS_BANNED, STATUS_HIDDEN, STATUS_ON_MODERATION, STATUS_UPLOADED
+from modservice.constants import (
+    STATUS_BANNED,
+    STATUS_HIDDEN,
+    STATUS_ON_MODERATION,
+    STATUS_UPLOADED,
+)
 from modservice.grpc import mod_pb2
 from modservice.service.service import ModService
 
